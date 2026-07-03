@@ -1,0 +1,180 @@
+{
+  "info": {
+    "name": "WheelGenie API",
+    "description": "Complete API collection for WheelGenie — AI-Powered Automotive Platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api/v1" },
+    { "key": "accessToken", "value": "" },
+    { "key": "resetToken", "value": "" },
+    { "key": "vehicleListingId", "value": "" },
+    { "key": "mechanicId", "value": "" },
+    { "key": "bookingId", "value": "" },
+    { "key": "evaluationId", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Customer",
+          "event": [{ "listen": "test", "script": { "exec": ["const res = pm.response.json();", "if (res.data && res.data.accessToken) { pm.collectionVariables.set('accessToken', res.data.accessToken); }"] } }],
+          "request": { "method": "POST", "url": "{{baseUrl}}/auth/register", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Aman Sharma\",\n  \"email\": \"aman@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"9876543210\",\n  \"role\": \"customer\",\n  \"address\": { \"street\": \"MG Road\", \"city\": \"Delhi\", \"state\": \"Delhi\", \"zipCode\": \"110001\" }\n}" } }
+        },
+        {
+          "name": "Register Mechanic",
+          "request": { "method": "POST", "url": "{{baseUrl}}/auth/register", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Raj Kumar\",\n  \"email\": \"raj.mechanic@example.com\",\n  \"password\": \"mechanic123\",\n  \"phone\": \"9988776655\",\n  \"role\": \"mechanic\"\n}" } }
+        },
+        {
+          "name": "Register Admin",
+          "request": { "method": "POST", "url": "{{baseUrl}}/auth/register", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"admin@wheelgenie.com\",\n  \"password\": \"admin12345\",\n  \"phone\": \"9000000001\",\n  \"role\": \"admin\"\n}" } }
+        },
+        {
+          "name": "Register Validation Fail",
+          "request": { "method": "POST", "url": "{{baseUrl}}/auth/register", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"A\",\n  \"email\": \"invalid-email\",\n  \"password\": \"123\",\n  \"phone\": \"12\"\n}" } }
+        },
+        {
+          "name": "Login Customer",
+          "event": [{ "listen": "test", "script": { "exec": ["const res = pm.response.json();", "if (res.data && res.data.accessToken) { pm.collectionVariables.set('accessToken', res.data.accessToken); }"] } }],
+          "request": { "method": "POST", "url": "{{baseUrl}}/auth/login", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"aman@example.com\",\n  \"password\": \"password123\"\n}" } }
+        },
+        {
+          "name": "Login Wrong Password",
+          "request": { "method": "POST", "url": "{{baseUrl}}/auth/login", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"aman@example.com\",\n  \"password\": \"wrongpassword\"\n}" } }
+        },
+        {
+          "name": "Get Me",
+          "request": { "method": "GET", "url": "{{baseUrl}}/auth/me", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] } }
+        },
+        {
+          "name": "Update Profile",
+          "request": { "method": "PATCH", "url": "{{baseUrl}}/auth/profile", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Aman Sharma Updated\",\n  \"phone\": \"9111111111\",\n  \"address\": { \"street\": \"Connaught Place\", \"city\": \"New Delhi\", \"state\": \"Delhi\", \"zipCode\": \"110001\" }\n}" } }
+        },
+        {
+          "name": "Forgot Password",
+          "event": [{ "listen": "test", "script": { "exec": ["const res = pm.response.json();", "if (res.data && res.data.resetURL) { const parts = res.data.resetURL.split('/'); pm.collectionVariables.set('resetToken', parts[parts.length - 1]); }"] } }],
+          "request": { "method": "POST", "url": "{{baseUrl}}/auth/forgot-password", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"aman@example.com\"\n}" } }
+        },
+        {
+          "name": "Reset Password",
+          "request": { "method": "PATCH", "url": "{{baseUrl}}/auth/reset-password/{{resetToken}}", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"password\": \"newpassword456\"\n}" } }
+        },
+        {
+          "name": "Logout",
+          "request": { "method": "POST", "url": "{{baseUrl}}/auth/logout", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] } }
+        }
+      ]
+    },
+    {
+      "name": "Marketplace",
+      "item": [
+        {
+          "name": "Create Listing - Honda City",
+          "event": [{ "listen": "test", "script": { "exec": ["const res = pm.response.json();", "if (res.data && res.data.listing && res.data.listing._id) { pm.collectionVariables.set('vehicleListingId', res.data.listing._id); }"] } }],
+          "request": { "method": "POST", "url": "{{baseUrl}}/vehicles", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"brand\": \"Honda\",\n  \"model\": \"City\",\n  \"variant\": \"ZX CVT\",\n  \"fuel\": \"Petrol\",\n  \"transmission\": \"Automatic\",\n  \"kms\": 35000,\n  \"year\": 2021,\n  \"ownership\": 1,\n  \"city\": \"Mumbai\",\n  \"images\": [\"https://example.com/honda-city-1.jpg\", \"https://example.com/honda-city-2.jpg\"],\n  \"price\": 950000,\n  \"description\": \"Well maintained Honda City 5th Gen, ZX CVT variant. Single owner, company serviced.\"\n}" } }
+        },
+        {
+          "name": "Create Listing - Hyundai Creta",
+          "request": { "method": "POST", "url": "{{baseUrl}}/vehicles", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"brand\": \"Hyundai\",\n  \"model\": \"Creta\",\n  \"variant\": \"SX(O) Diesel\",\n  \"fuel\": \"Diesel\",\n  \"transmission\": \"Automatic\",\n  \"kms\": 28000,\n  \"year\": 2022,\n  \"ownership\": 1,\n  \"city\": \"Delhi\",\n  \"images\": [\"https://example.com/creta-1.jpg\"],\n  \"price\": 1450000,\n  \"description\": \"Hyundai Creta SX(O) top model with panoramic sunroof, ADAS features. Immaculate condition.\"\n}" } }
+        },
+        {
+          "name": "Create Listing - Maruti Swift",
+          "request": { "method": "POST", "url": "{{baseUrl}}/vehicles", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"brand\": \"Maruti Suzuki\",\n  \"model\": \"Swift\",\n  \"variant\": \"ZXI+ AMT\",\n  \"fuel\": \"Petrol\",\n  \"transmission\": \"Automatic\",\n  \"kms\": 42000,\n  \"year\": 2020,\n  \"ownership\": 2,\n  \"city\": \"Bangalore\",\n  \"images\": [\"https://example.com/swift-1.jpg\"],\n  \"price\": 620000,\n  \"description\": \"Maruti Swift ZXI+ with AMT gearbox. Second owner, well maintained, insurance valid till 2027.\"\n}" } }
+        },
+        { "name": "Get All Listings", "request": { "method": "GET", "url": "{{baseUrl}}/vehicles" } },
+        { "name": "Search by Brand", "request": { "method": "GET", "url": "{{baseUrl}}/vehicles?brand=Honda" } },
+        { "name": "Search Keyword", "request": { "method": "GET", "url": "{{baseUrl}}/vehicles?search=Creta" } },
+        { "name": "Filter City + Fuel", "request": { "method": "GET", "url": "{{baseUrl}}/vehicles?city=Mumbai&fuel=Petrol" } },
+        { "name": "Filter Price Range", "request": { "method": "GET", "url": "{{baseUrl}}/vehicles?minPrice=500000&maxPrice=1000000" } },
+        { "name": "Filter Year + Sort Price", "request": { "method": "GET", "url": "{{baseUrl}}/vehicles?minYear=2020&maxYear=2023&sort=price" } },
+        { "name": "Sort Price Desc", "request": { "method": "GET", "url": "{{baseUrl}}/vehicles?sort=-price" } },
+        { "name": "Sort Latest", "request": { "method": "GET", "url": "{{baseUrl}}/vehicles?sort=latest" } },
+        { "name": "Pagination", "request": { "method": "GET", "url": "{{baseUrl}}/vehicles?page=1&limit=2" } },
+        { "name": "Get Listing By ID", "request": { "method": "GET", "url": "{{baseUrl}}/vehicles/{{vehicleListingId}}" } },
+        {
+          "name": "Update Listing",
+          "request": { "method": "PATCH", "url": "{{baseUrl}}/vehicles/{{vehicleListingId}}", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"price\": 899000,\n  \"description\": \"PRICE REDUCED! Well maintained Honda City 5th Gen. Urgent sale.\",\n  \"kms\": 36500\n}" } }
+        },
+        {
+          "name": "Delete Listing",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/vehicles/{{vehicleListingId}}", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] } }
+        }
+      ]
+    },
+    {
+      "name": "Mechanics",
+      "item": [
+        { "name": "Get All Mechanics", "request": { "method": "GET", "url": "{{baseUrl}}/mechanics" } },
+        { "name": "Filter by City", "request": { "method": "GET", "url": "{{baseUrl}}/mechanics?city=Delhi" } },
+        { "name": "Filter by Skills", "request": { "method": "GET", "url": "{{baseUrl}}/mechanics?skills=Engine,AC" } },
+        { "name": "Get Mechanic By ID", "request": { "method": "GET", "url": "{{baseUrl}}/mechanics/{{mechanicId}}" } }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        {
+          "name": "Create Booking",
+          "event": [{ "listen": "test", "script": { "exec": ["const res = pm.response.json();", "if (res.data && res.data.booking && res.data.booking._id) { pm.collectionVariables.set('bookingId', res.data.booking._id); }"] } }],
+          "request": { "method": "POST", "url": "{{baseUrl}}/bookings", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"mechanicId\": \"{{mechanicId}}\",\n  \"vehicleId\": \"PASTE_VEHICLE_ID_HERE\",\n  \"service\": \"Full car service - oil change, brake pad replacement, AC gas refill\",\n  \"date\": \"2026-07-10T10:00:00.000Z\"\n}" } }
+        },
+        { "name": "Get My Bookings", "request": { "method": "GET", "url": "{{baseUrl}}/bookings/my", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] } } },
+        { "name": "Get Booking By ID", "request": { "method": "GET", "url": "{{baseUrl}}/bookings/{{bookingId}}", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] } } },
+        { "name": "Status - Accept", "request": { "method": "PATCH", "url": "{{baseUrl}}/bookings/{{bookingId}}/status", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{ \"status\": \"Accepted\" }" } } },
+        { "name": "Status - In Progress", "request": { "method": "PATCH", "url": "{{baseUrl}}/bookings/{{bookingId}}/status", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{ \"status\": \"In Progress\" }" } } },
+        { "name": "Status - Completed", "request": { "method": "PATCH", "url": "{{baseUrl}}/bookings/{{bookingId}}/status", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{ \"status\": \"Completed\" }" } } },
+        { "name": "Status - Cancel", "request": { "method": "PATCH", "url": "{{baseUrl}}/bookings/{{bookingId}}/status", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{ \"status\": \"Cancelled\" }" } } }
+      ]
+    },
+    {
+      "name": "AI Evaluation",
+      "item": [
+        {
+          "name": "Evaluate - Maruti Swift",
+          "event": [{ "listen": "test", "script": { "exec": ["const res = pm.response.json();", "if (res.data && res.data.evaluation && res.data.evaluation._id) { pm.collectionVariables.set('evaluationId', res.data.evaluation._id); }"] } }],
+          "request": { "method": "POST", "url": "{{baseUrl}}/ai/evaluate", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"brand\": \"Maruti Suzuki\",\n  \"model\": \"Swift\",\n  \"variant\": \"ZXI+\",\n  \"year\": 2021,\n  \"fuel\": \"Petrol\",\n  \"kms\": 28000,\n  \"ownership\": 1,\n  \"accidentHistory\": \"None\",\n  \"city\": \"Delhi\",\n  \"askingPrice\": 650000\n}" } }
+        },
+        {
+          "name": "Evaluate - Honda City Accidented",
+          "request": { "method": "POST", "url": "{{baseUrl}}/ai/evaluate", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"brand\": \"Honda\",\n  \"model\": \"City\",\n  \"variant\": \"V MT\",\n  \"year\": 2019,\n  \"fuel\": \"Petrol\",\n  \"kms\": 55000,\n  \"ownership\": 2,\n  \"accidentHistory\": \"Minor front bumper accident in 2021, fully repaired\",\n  \"city\": \"Mumbai\",\n  \"askingPrice\": 720000\n}" } }
+        },
+        {
+          "name": "Evaluate - Hyundai Creta Diesel",
+          "request": { "method": "POST", "url": "{{baseUrl}}/ai/evaluate", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"brand\": \"Hyundai\",\n  \"model\": \"Creta\",\n  \"variant\": \"SX(O)\",\n  \"year\": 2022,\n  \"fuel\": \"Diesel\",\n  \"kms\": 15000,\n  \"ownership\": 1,\n  \"accidentHistory\": \"None\",\n  \"city\": \"Bangalore\",\n  \"askingPrice\": 1500000\n}" } }
+        },
+        { "name": "Get My Evaluations", "request": { "method": "GET", "url": "{{baseUrl}}/ai/evaluations", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] } } },
+        { "name": "Get Evaluation By ID", "request": { "method": "GET", "url": "{{baseUrl}}/ai/evaluations/{{evaluationId}}", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] } } }
+      ]
+    },
+    {
+      "name": "Valuation",
+      "item": [
+        {
+          "name": "Valuate - Hyundai Creta",
+          "request": { "method": "POST", "url": "{{baseUrl}}/valuation", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"brand\": \"Hyundai\",\n  \"model\": \"Creta\",\n  \"variant\": \"SX(O)\",\n  \"year\": 2022,\n  \"fuel\": \"Diesel\",\n  \"kms\": 15000,\n  \"ownership\": 1,\n  \"city\": \"Bangalore\"\n}" } }
+        },
+        {
+          "name": "Valuate - Maruti Swift",
+          "request": { "method": "POST", "url": "{{baseUrl}}/valuation", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"brand\": \"Maruti Suzuki\",\n  \"model\": \"Swift\",\n  \"variant\": \"ZXI+ AMT\",\n  \"year\": 2020,\n  \"fuel\": \"Petrol\",\n  \"kms\": 42000,\n  \"ownership\": 2,\n  \"city\": \"Pune\"\n}" } }
+        },
+        {
+          "name": "Valuate - Tata Nexon EV",
+          "request": { "method": "POST", "url": "{{baseUrl}}/valuation", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"brand\": \"Tata\",\n  \"model\": \"Nexon EV\",\n  \"variant\": \"Max LR\",\n  \"year\": 2023,\n  \"fuel\": \"Electric\",\n  \"kms\": 8000,\n  \"ownership\": 1,\n  \"city\": \"Mumbai\"\n}" } }
+        }
+      ]
+    },
+    {
+      "name": "Health & Docs",
+      "item": [
+        { "name": "Base Route", "request": { "method": "GET", "url": "http://localhost:5000/" } },
+        { "name": "Health Check", "request": { "method": "GET", "url": "http://localhost:5000/health" } },
+        { "name": "404 Unknown Route", "request": { "method": "GET", "url": "http://localhost:5000/api/v1/unknown-route" } }
+      ]
+    }
+  ]
+}
