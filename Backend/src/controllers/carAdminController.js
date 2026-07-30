@@ -12,10 +12,12 @@ export const createCar = catchAsync(async (req, res, next) => {
     sellRequestId
   } = req.body;
 
+  const imageUrls = images ? images.map(img => (typeof img === 'string' ? img : img.url)) : [];
+
   const vehicle = await Vehicle.create({
     owner: req.user._id,
     brand, model, variant, fuel, transmission, kms, year,
-    ownership, city, images: images || [],
+    ownership, city, images: imageUrls,
     status: 'active'
   });
 
@@ -25,7 +27,7 @@ export const createCar = catchAsync(async (req, res, next) => {
       vehicle: vehicle._id,
       seller: req.user._id,
       price: listingPrice,
-      description: listingDescription || '',
+      description: listingDescription || `${brand} ${model} ${variant} for sale`,
       status: 'active'
     });
     vehicle.listing = listing._id;
@@ -317,11 +319,13 @@ export const markCarUnsold = catchAsync(async (req, res, next) => {
 });
 
 export const addCarImages = catchAsync(async (req, res, next) => {
-  const { images } = req.body;
+  let { images } = req.body;
 
   if (!images || !Array.isArray(images) || images.length === 0) {
     return next(new AppError('Images array is required', 400));
   }
+
+  images = images.map(img => (typeof img === 'string' ? img : img.url));
 
   const vehicle = await Vehicle.findByIdAndUpdate(
     req.params.id,

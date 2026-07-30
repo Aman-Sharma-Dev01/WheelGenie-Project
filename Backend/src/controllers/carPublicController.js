@@ -19,10 +19,12 @@ export const getCars = catchAsync(async (req, res, next) => {
   if (transmission) filter.transmission = transmission;
   if (city) filter.city = { $regex: city, $options: 'i' };
   if (minPrice || maxPrice) {
-    filter.$or = [
-      { price: { $exists: true } },
-      { 'listing.price': { $exists: true } }
-    ];
+    const listingFilter = { status: 'active' };
+    if (minPrice) listingFilter.price = { ...listingFilter.price, $gte: Number(minPrice) };
+    if (maxPrice) listingFilter.price = { ...listingFilter.price, $lte: Number(maxPrice) };
+    const listings = await Listing.find(listingFilter).select('vehicle').lean();
+    const vehicleIds = listings.map(l => l.vehicle).filter(Boolean);
+    filter._id = { $in: vehicleIds };
   }
 
   let query = Vehicle.find(filter)
@@ -32,16 +34,6 @@ export const getCars = catchAsync(async (req, res, next) => {
       select: 'price description status views',
       match: { status: 'active' }
     });
-
-  if (minPrice || maxPrice) {
-    query = query.populate({
-      path: 'listing',
-      match: {
-        status: 'active',
-        price: {}
-      }
-    });
-  }
 
   if (search) {
     filter.$text = { $search: search };
@@ -205,9 +197,12 @@ export const filterCars = catchAsync(async (req, res, next) => {
     if (maxKms) filter.kms.$lte = Number(maxKms);
   }
   if (minPrice || maxPrice) {
-    filter['listing.price'] = {};
-    if (minPrice) filter['listing.price'].$gte = Number(minPrice);
-    if (maxPrice) filter['listing.price'].$lte = Number(maxPrice);
+    const listingFilter = { status: 'active' };
+    if (minPrice) listingFilter.price = { ...listingFilter.price, $gte: Number(minPrice) };
+    if (maxPrice) listingFilter.price = { ...listingFilter.price, $lte: Number(maxPrice) };
+    const listings = await Listing.find(listingFilter).select('vehicle').lean();
+    const vehicleIds = listings.map(l => l.vehicle).filter(Boolean);
+    filter._id = { $in: vehicleIds };
   }
 
   const [cars, total] = await Promise.all([

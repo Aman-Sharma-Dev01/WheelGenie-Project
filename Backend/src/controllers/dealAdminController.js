@@ -188,7 +188,7 @@ export const updateDealStatus = catchAsync(async (req, res, next) => {
 
   if (notificationTitle) {
     await Notification.create({
-      recipient: deal.client._id,
+      recipient: deal.client?._id || req.user._id,
       title: notificationTitle,
       message: notificationMessage,
       type: 'System'
@@ -245,7 +245,7 @@ export const cancelDeal = catchAsync(async (req, res, next) => {
   }
 
   await Notification.create({
-    recipient: deal.client._id,
+    recipient: deal.client?._id || req.user._id,
     title: 'Deal Cancelled',
     message: `Your deal for ${deal.car.brand} ${deal.car.model} was cancelled. Reason: ${reason}`,
     type: 'System'
@@ -284,7 +284,7 @@ export const completeDeal = catchAsync(async (req, res, next) => {
   }
 
   await Notification.create({
-    recipient: deal.client._id,
+    recipient: deal.client?._id || req.user._id,
     title: 'Deal Completed',
     message: `Your deal for ${deal.car.brand} ${deal.car.model} has been completed successfully.`,
     type: 'System'

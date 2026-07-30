@@ -1,8 +1,8 @@
 import catchAsync from '../utils/catchAsync.js';
 import AppError from '../utils/appError.js';
+import { uploadToCloudinary, deleteFromCloudinary } from '../config/cloudinary.js';
 import crypto from 'crypto';
 
-const uploadDir = process.env.UPLOAD_DIR || './uploads';
 const maxFileSize = parseInt(process.env.MAX_FILE_SIZE) || 10 * 1024 * 1024;
 
 const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
@@ -28,25 +28,30 @@ export const uploadImage = catchAsync(async (req, res, next) => {
     return next(new AppError(`File size exceeds ${maxFileSize / (1024 * 1024)}MB limit`, 400));
   }
 
-  const fileId = crypto.randomBytes(16).toString('hex');
-  const extension = req.file.mimetype.split('/')[1];
-  const fileName = `${fileId}.${extension}`;
-
-  const uploadResult = {
-    id: fileId,
-    originalName: req.file.originalname,
-    fileName,
-    url: `/uploads/images/${fileName}`,
-    mimeType: req.file.mimetype,
-    size: req.file.size,
-    uploadedAt: new Date()
-  };
+  const publicId = `${crypto.randomBytes(16).toString('hex')}`;
+  const result = await uploadToCloudinary(req.file.buffer, {
+    folder: 'wheelgenie/images',
+    publicId,
+    resourceType: 'image',
+  });
 
   res.status(201).json({
     success: true,
     statusCode: 201,
     message: 'Image uploaded successfully',
-    data: { file: uploadResult }
+    data: {
+      file: {
+        id: result.public_id,
+        url: result.secure_url,
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        width: result.width,
+        height: result.height,
+        format: result.format,
+        uploadedAt: new Date()
+      }
+    }
   });
 });
 
@@ -63,35 +68,49 @@ export const uploadDocument = catchAsync(async (req, res, next) => {
     return next(new AppError(`File size exceeds ${maxFileSize / (1024 * 1024)}MB limit`, 400));
   }
 
-  const fileId = crypto.randomBytes(16).toString('hex');
-  const extension = req.file.mimetype.split('/')[1];
-  const fileName = `${fileId}.${extension}`;
-
-  const uploadResult = {
-    id: fileId,
-    originalName: req.file.originalname,
-    fileName,
-    url: `/uploads/documents/${fileName}`,
-    mimeType: req.file.mimetype,
-    size: req.file.size,
-    uploadedAt: new Date()
-  };
+  const publicId = `${crypto.randomBytes(16).toString('hex')}`;
+  const result = await uploadToCloudinary(req.file.buffer, {
+    folder: 'wheelgenie/documents',
+    publicId,
+    resourceType: 'auto',
+  });
 
   res.status(201).json({
     success: true,
     statusCode: 201,
     message: 'Document uploaded successfully',
-    data: { file: uploadResult }
+    data: {
+      file: {
+        id: result.public_id,
+        url: result.secure_url,
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        format: result.format,
+        uploadedAt: new Date()
+      }
+    }
   });
 });
 
 export const deleteUpload = catchAsync(async (req, res, next) => {
   const { id } = req.params;
 
+  let result;
+  try {
+    result = await deleteFromCloudinary(id);
+  } catch (err) {
+    return next(new AppError('Failed to delete file from Cloudinary', 500));
+  }
+
+  if (result.result === 'not found') {
+    return next(new AppError('File not found on Cloudinary', 404));
+  }
+
   res.status(200).json({
     success: true,
     statusCode: 200,
-    message: 'Upload deleted successfully',
+    message: 'File deleted successfully from Cloudinary',
     data: { deletedId: id }
   });
 });

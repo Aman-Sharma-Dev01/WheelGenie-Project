@@ -59,14 +59,20 @@ const vehicleSchema = new mongoose.Schema({
     type: String,
     required: true
   }],
+  listing: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Listing'
+  },
   status: {
     type: String,
-    enum: ['active', 'sold', 'paused'],
+    enum: ['active', 'sold', 'paused', 'draft', 'archived', 'reserved'],
     default: 'active'
   }
 }, {
   timestamps: true
 });
+
+vehicleSchema.index({ brand: 'text', model: 'text', variant: 'text' });
 
 const Vehicle = mongoose.model('Vehicle', vehicleSchema);
 export default Vehicle;

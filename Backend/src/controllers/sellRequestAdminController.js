@@ -171,7 +171,7 @@ export const approveSellRequest = catchAsync(async (req, res, next) => {
     vehicle: vehicle._id,
     seller: sellRequest.client._id,
     price: listingPrice || sellRequest.expectedPrice,
-    description: description || sellRequest.description,
+    description: description || sellRequest.description || `${sellRequest.brand} ${sellRequest.model} ${sellRequest.variant} for sale`,
     status: 'active'
   });
 

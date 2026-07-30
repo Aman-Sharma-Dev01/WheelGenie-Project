@@ -87,6 +87,7 @@ const sellRequestSchema = new mongoose.Schema({
   inspectedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   officialNotes: { type: String },
   rejectionReason: { type: String },
+  assignedOfficial: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   listedVehicle: { type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle' },
   listedListing: { type: mongoose.Schema.Types.ObjectId, ref: 'Listing' },
   cancelledAt: { type: Date },

@@ -20,7 +20,7 @@ export const createPaperwork = catchAsync(async (req, res, next) => {
 
   const paperwork = await Paperwork.create({
     deal: dealId,
-    client: deal.client._id,
+    client: deal.client?._id || req.user._id,
     official: req.user._id,
     status: 'initiated'
   });
@@ -33,7 +33,7 @@ export const createPaperwork = catchAsync(async (req, res, next) => {
     .lean();
 
   await Notification.create({
-    recipient: deal.client._id,
+    recipient: deal.client?._id || req.user._id,
     title: 'Paperwork Initiated',
     message: `Paperwork for ${deal.car.brand} ${deal.car.model} has been initiated. Please upload required documents.`,
     type: 'System'
@@ -191,11 +191,10 @@ export const uploadDocument = catchAsync(async (req, res, next) => {
 export const deleteDocument = catchAsync(async (req, res, next) => {
   const paperwork = await Paperwork.findByIdAndUpdate(
     req.params.id,
-    { $pull: { documents: { _id: req.params.documentId } } },
-    { new: true }
+    { $set: updateData },
+    { new: true, runValidators: true }
   )
-    .populate('deal', 'agreedPrice status')
-    .populate('deal.car', 'brand model variant year city')
+    .populate({ path: 'deal', select: 'agreedPrice status', populate: { path: 'car', select: 'brand model variant year city' } })
     .populate('client', 'name email phone')
     .populate('official', 'name email')
     .lean();
@@ -232,8 +231,7 @@ export const updatePaperworkStatus = catchAsync(async (req, res, next) => {
     { $set: updateData },
     { new: true, runValidators: true }
   )
-    .populate('deal', 'agreedPrice status')
-    .populate('deal.car', 'brand model variant year city')
+    .populate({ path: 'deal', select: 'agreedPrice status', populate: { path: 'car', select: 'brand model variant year city' } })
     .populate('client', 'name email phone')
     .populate('official', 'name email')
     .lean();
@@ -266,7 +264,7 @@ export const updatePaperworkStatus = catchAsync(async (req, res, next) => {
 
   if (notificationTitle) {
     await Notification.create({
-      recipient: paperwork.client._id,
+      recipient: paperwork.client?._id || req.user._id,
       title: notificationTitle,
       message: notificationMessage,
       type: 'System'

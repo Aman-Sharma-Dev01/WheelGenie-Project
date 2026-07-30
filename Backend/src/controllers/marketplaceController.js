@@ -43,6 +43,10 @@ export const createVehicleListing = catchAsync(async (req, res, next) => {
     description
   });
 
+  // Set reverse reference on vehicle
+  newVehicle.listing = newListing._id;
+  await newVehicle.save();
+
   res.status(201).json({
     success: true,
     statusCode: 201,
