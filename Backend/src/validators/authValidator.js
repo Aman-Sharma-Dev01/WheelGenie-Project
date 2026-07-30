@@ -6,7 +6,7 @@ export const registerSchema = z.object({
     email: z.string({ required_error: 'Email is required' }).trim().email('Invalid email address'),
     password: z.string({ required_error: 'Password is required' }).min(6, 'Password must be at least 6 characters'),
     phone: z.string({ required_error: 'Phone number is required' }).trim().min(10, 'Phone must be at least 10 digits'),
-    role: z.enum(['customer', 'mechanic', 'admin']).default('customer'),
+    role: z.enum(['customer', 'official', 'admin']).default('customer'),
     address: z.object({
       street: z.string().optional(),
       city: z.string().optional(),
@@ -53,6 +53,43 @@ export const resetPasswordSchema = z.object({
 export const googleLoginSchema = z.object({
   body: z.object({
     token: z.string({ required_error: 'Google OAuth token is required' })
+  })
+});
+
+export const refreshTokenSchema = z.object({
+  body: z.object({
+    refreshToken: z.string({ required_error: 'Refresh token is required' })
+  })
+});
+
+export const sendOtpSchema = z.object({
+  body: z.object({
+    phone: z.string({ required_error: 'Phone number is required' }).trim().min(10, 'Phone must be at least 10 digits'),
+    type: z.enum(['login', 'register', 'verify']).default('verify')
+  })
+});
+
+export const verifyOtpSchema = z.object({
+  body: z.object({
+    phone: z.string({ required_error: 'Phone number is required' }).trim().min(10, 'Phone must be at least 10 digits'),
+    otp: z.string({ required_error: 'OTP is required' }).length(6, 'OTP must be 6 digits'),
+    type: z.enum(['login', 'register', 'verify']).default('verify')
+  })
+});
+
+export const updateLocationSchema = z.object({
+  body: z.object({
+    coordinates: z.object({
+      type: z.literal('Point').default('Point'),
+      coordinates: z.array(z.number()).length(2, 'Coordinates must be [longitude, latitude]')
+    }),
+    label: z.string().trim().optional()
+  })
+});
+
+export const deleteAccountSchema = z.object({
+  body: z.object({
+    password: z.string({ required_error: 'Password is required for account deletion' })
   })
 });
 

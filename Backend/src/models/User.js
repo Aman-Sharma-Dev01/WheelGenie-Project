@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['customer', 'mechanic', 'admin'],
+    enum: ['customer', 'official', 'admin'],
     default: 'customer'
   },
   phone: {
@@ -52,7 +52,30 @@ const userSchema = new mongoose.Schema({
   passwordResetExpires: {
     type: Date,
     select: false
-  }
+  },
+  otp: {
+    type: String,
+    select: false
+  },
+  otpExpires: {
+    type: Date,
+    select: false
+  },
+  location: {
+    coordinates: {
+      type: { type: String, enum: ['Point'], default: 'Point' },
+      coordinates: { type: [Number], default: [0, 0] }
+    },
+    label: { type: String, trim: true, default: '' }
+  },
+  wishlist: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Vehicle'
+  }],
+  compare: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Vehicle'
+  }]
 }, {
   timestamps: true
 });

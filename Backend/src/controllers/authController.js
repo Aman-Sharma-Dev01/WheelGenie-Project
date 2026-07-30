@@ -201,10 +201,13 @@ export const forgotPassword = catchAsync(async (req, res, next) => {
 
 // 7. RESET PASSWORD
 export const resetPassword = catchAsync(async (req, res, next) => {
-  const { token } = req.params;
-  const { password } = req.body;
+  const { token, password } = req.body;
 
-  // Hash plain token from param to compare with hashed value in DB
+  if (!token) {
+    return next(new AppError('Reset token is required.', 400));
+  }
+
+  // Hash plain token from body to compare with hashed value in DB
   const hashedToken = crypto
     .createHash('sha256')
     .update(token)
@@ -228,7 +231,102 @@ export const resetPassword = catchAsync(async (req, res, next) => {
   await createSendToken(user, 200, res, 'Password reset successfully');
 });
 
-// 8. GOOGLE LOGIN
+// 8. REFRESH TOKEN
+export const refreshToken = catchAsync(async (req, res, next) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return next(new AppError('Refresh token is required.', 400));
+  }
+
+  let decoded;
+  try {
+    decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+  } catch (err) {
+    return next(new AppError('Invalid or expired refresh token.', 401));
+  }
+
+  const user = await User.findById(decoded.id).select('+refreshToken');
+  if (!user || user.refreshToken !== refreshToken) {
+    return next(new AppError('Invalid refresh token.', 401));
+  }
+
+  await createSendToken(user, 200, res, 'Token refreshed successfully');
+});
+
+// 9. SEND OTP
+export const sendOtp = catchAsync(async (req, res, next) => {
+  const { phone, type } = req.body;
+
+  const user = await User.findOne({ phone });
+  if (!user) {
+    return next(new AppError('No user found with this phone number.', 404));
+  }
+
+  // Generate 6-digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  
+  // Hash OTP and save to database
+  user.otp = crypto
+    .createHash('sha256')
+    .update(otp)
+    .digest('hex');
+  user.otpExpires = Date.now() + 5 * 60 * 1000; // 5 minutes expiry
+
+  await user.save({ validateBeforeSave: false });
+
+  // For testing/mocking since SMS service is not configured
+  console.log(`[MOCK SMS SENT] OTP for ${phone}: ${otp} (Type: ${type})`);
+
+  res.status(200).json({
+    success: true,
+    statusCode: 200,
+    message: 'OTP sent successfully.',
+    data: {
+      note: 'In production, OTP will be sent via SMS.',
+      otp: process.env.NODE_ENV === 'development' ? otp : undefined
+    }
+  });
+});
+
+// 10. VERIFY OTP
+export const verifyOtp = catchAsync(async (req, res, next) => {
+  const { phone, otp, type } = req.body;
+
+  const user = await User.findOne({ phone }).select('+otp +otpExpires');
+  if (!user) {
+    return next(new AppError('No user found with this phone number.', 404));
+  }
+
+  // Hash plain OTP from body to compare with hashed value in DB
+  const hashedOtp = crypto
+    .createHash('sha256')
+    .update(otp)
+    .digest('hex');
+
+  if (user.otp !== hashedOtp || !user.otpExpires || user.otpExpires < Date.now()) {
+    return next(new AppError('OTP is invalid or has expired.', 400));
+  }
+
+  // Clear OTP after successful verification
+  user.otp = undefined;
+  user.otpExpires = undefined;
+  await user.save({ validateBeforeSave: false });
+
+  // If type is login, return tokens
+  if (type === 'login') {
+    return await createSendToken(user, 200, res, 'OTP verified. Logged in successfully.');
+  }
+
+  res.status(200).json({
+    success: true,
+    statusCode: 200,
+    message: 'OTP verified successfully.',
+    data: { verified: true }
+  });
+});
+
+// 11. GOOGLE LOGIN
 // Decodes payload for local client simulation / OAuth token logic
 export const googleLogin = catchAsync(async (req, res, next) => {
   const { token } = req.body;
@@ -260,4 +358,57 @@ export const googleLogin = catchAsync(async (req, res, next) => {
   }
 
   await createSendToken(user, 200, res, 'Logged in via Google successfully');
+});
+
+// 12. UPDATE LOCATION
+export const updateLocation = catchAsync(async (req, res, next) => {
+  const { coordinates, label } = req.body;
+
+  const updateData = {
+    'location.coordinates.type': coordinates?.type || 'Point',
+    'location.coordinates.coordinates': coordinates?.coordinates || [0, 0],
+    'location.label': label || ''
+  };
+
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    { $set: updateData },
+    { new: true, runValidators: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    statusCode: 200,
+    message: 'Location updated successfully',
+    data: {
+      user: updatedUser
+    }
+  });
+});
+
+// 13. DELETE ACCOUNT
+export const deleteAccount = catchAsync(async (req, res, next) => {
+  const { password } = req.body;
+
+  const user = await User.findById(req.user._id).select('+password');
+  if (!(await user.comparePassword(password))) {
+    return next(new AppError('Incorrect password.', 401));
+  }
+
+  // Clear refresh token
+  user.refreshToken = undefined;
+  await user.save({ validateBeforeSave: false });
+
+  // Delete the user
+  await User.findByIdAndDelete(req.user._id);
+
+  // Clear cookies
+  res.clearCookie('accessToken');
+  res.clearCookie('refreshToken');
+
+  res.status(200).json({
+    success: true,
+    statusCode: 200,
+    message: 'Account deleted successfully'
+  });
 });
