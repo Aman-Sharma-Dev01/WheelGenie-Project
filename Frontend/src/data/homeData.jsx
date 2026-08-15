@@ -5,6 +5,7 @@ import {
   UsersRound,
   ShieldCheck,
   Award,
+  Clock,
 } from "lucide-react";
 
 export const heroActions = [
@@ -63,23 +64,23 @@ export const features = [
 
 export const stats = [
   {
-    value: "10K+",
-    label: "Happy Customers",
+    value: "25+",
+    label: "Years of Experience",
+    icon: Award,
+  },
+  {
+    value: "2,100+",
+    label: "Satisfied Customers",
     icon: UsersRound,
   },
   {
-    value: "15K+",
-    label: "Cars Listed",
+    value: "500+",
+    label: "Cars for Rent",
     icon: CarFront,
   },
   {
-    value: "100%",
-    label: "Verified Listings",
-    icon: ShieldCheck,
-  },
-  {
-    value: "4.8/5",
-    label: "Average Rating",
-    icon: Award,
+    value: "6,450+",
+    label: "Working Hours",
+    icon: Clock,
   },
 ];

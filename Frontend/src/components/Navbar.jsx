@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import logo from "../assets/logo.png.png";
 
 const navigation = [
   { name: "Buy", href: "/buy", key: "buy" },
   { name: "Sell", href: "/sell", key: "sell" },
   { name: "AI Calculator", href: "/calculator", key: "calculator" },
-  { name: "About Us", href: "/about", key: "about" },
+  { name: "About Us", href: "/", key: "about" },
   { name: "How It Works", href: "/how-it-works", key: "how" },
   { name: "Contact", href: "/contact", key: "contact" },
 ];
@@ -15,7 +16,7 @@ export default function Navbar({ activePage = "about" }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/5 bg-wg-navy">
+    <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-md">
       <div className="wg-container">
         <div className="flex h-[76px] items-center justify-between">
           
@@ -26,9 +27,9 @@ export default function Navbar({ activePage = "about" }) {
             aria-label="WheelGenie Home"
           >
             <img
-              src="src/assets/logo.png.png"
+              src={logo}
               alt="WheelGenie"
-              className="h-auto w-[185px] object-contain"
+              className="h-[180px] w-[180px] object-contain -mt-[40px] -mb-[64px]"
             />
           </a>
 
@@ -41,7 +42,9 @@ export default function Navbar({ activePage = "about" }) {
                 <a
                   key={item.key}
                   href={item.href}
-                  className="group relative py-7 text-[15px] font-medium text-white/95 transition-colors duration-200 hover:text-white"
+                  className={`group relative py-7 text-[15px] font-medium transition-colors duration-200 ${
+                    active ? "text-wg-blue" : "text-slate-600 hover:text-wg-navy"
+                  }`}
                 >
                   {item.name}
 
@@ -59,7 +62,7 @@ export default function Navbar({ activePage = "about" }) {
           <div className="hidden items-center gap-4 lg:flex">
             <a
               href="/login"
-              className="rounded-lg border border-white/80 px-7 py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-white hover:text-wg-navy"
+              className="rounded-lg border border-slate-200 px-7 py-3 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-slate-50 hover:text-wg-navy"
             >
               Log In
             </a>
@@ -76,7 +79,7 @@ export default function Navbar({ activePage = "about" }) {
           <button
             type="button"
             onClick={() => setMobileOpen((prev) => !prev)}
-            className="rounded-lg p-2 text-white lg:hidden"
+            className="rounded-lg p-2 text-slate-700 hover:bg-slate-100 lg:hidden"
             aria-label="Toggle navigation"
           >
             {mobileOpen ? <X size={26} /> : <Menu size={26} />}
@@ -92,7 +95,7 @@ export default function Navbar({ activePage = "about" }) {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="overflow-hidden border-t border-white/10 lg:hidden"
+            className="overflow-hidden border-t border-slate-100 lg:hidden bg-white/95 backdrop-blur-md"
           >
             <nav className="wg-container flex flex-col py-4">
               {navigation.map((item) => (
@@ -100,10 +103,10 @@ export default function Navbar({ activePage = "about" }) {
                   key={item.key}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`border-b border-white/5 py-4 text-sm ${
+                  className={`border-b border-slate-100 py-4 text-sm font-medium ${
                     activePage === item.key
                       ? "text-wg-blue"
-                      : "text-white"
+                      : "text-slate-700 hover:text-wg-navy"
                   }`}
                 >
                   {item.name}
@@ -113,14 +116,14 @@ export default function Navbar({ activePage = "about" }) {
               <div className="mt-4 flex gap-3 pb-3">
                 <a
                   href="/login"
-                  className="flex-1 rounded-lg border border-white/70 py-3 text-center text-sm text-white"
+                  className="flex-1 rounded-lg border border-slate-200 py-3 text-center text-sm font-medium text-slate-700 hover:bg-slate-50"
                 >
                   Log In
                 </a>
 
                 <a
                   href="/signup"
-                  className="flex-1 rounded-lg bg-wg-blue py-3 text-center text-sm font-semibold text-white"
+                  className="flex-1 rounded-lg bg-wg-blue py-3 text-center text-sm font-semibold text-white hover:bg-blue-600"
                 >
                   Sign Up
                 </a>

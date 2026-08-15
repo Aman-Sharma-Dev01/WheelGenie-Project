@@ -11,6 +11,8 @@ import {
   FaYoutube,
 } from "react-icons/fa";
 
+import footerLogo from "../assets/footerlogo.png";
+
 const footerColumns = [
   {
     title: "Quick Links",
@@ -24,7 +26,7 @@ const footerColumns = [
   {
     title: "Company",
     links: [
-      ["About Us", "/about"],
+      ["About Us", "/"],
       ["Careers", "/careers"],
       ["Blog", "/blog"],
       ["Contact Us", "/contact"],
@@ -66,16 +68,16 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="bg-[#061A33] text-white">
+    <footer className="bg-wg-navy text-white border-t border-white/5">
       <div className="wg-container py-10">
         <div className="grid gap-9 md:grid-cols-2 lg:grid-cols-[1.35fr_0.9fr_0.9fr_0.9fr_1.25fr]">
 
           {/* Brand */}
           <div>
             <img
-              src="src/assets/logo.png.png"
+              src={footerLogo}
               alt="WheelGenie"
-              className="w-[180px]"
+              className="h-10 w-auto object-contain"
             />
 
             <p className="mt-4 max-w-[250px] text-sm leading-6 text-slate-300">
@@ -89,7 +91,7 @@ export default function Footer() {
                   key={label}
                   href={href}
                   aria-label={label}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/60 text-white transition-all duration-200 hover:border-wg-blue hover:bg-wg-blue hover:-translate-y-0.5"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-slate-300 transition-all duration-200 hover:border-wg-blue hover:bg-wg-blue hover:text-white hover:-translate-y-0.5"
                 >
                   <Icon size={16} />
                 </a>
@@ -124,7 +126,7 @@ export default function Footer() {
               Contact Us
             </h3>
 
-            <div className="mt-4 space-y-3 text-sm text-slate-300">
+            <div className="mt-4 space-y-3 text-sm text-slate-300 font-medium">
 
               {/* Phone */}
               <a
@@ -133,7 +135,7 @@ export default function Footer() {
               >
                 <Phone
                   size={17}
-                  className="mt-0.5 shrink-0"
+                  className="mt-0.5 shrink-0 text-slate-400"
                 />
 
                 <span>+1(403)9736444</span>
@@ -146,7 +148,7 @@ export default function Footer() {
               >
                 <Mail
                   size={17}
-                  className="mt-0.5 shrink-0"
+                  className="mt-0.5 shrink-0 text-slate-400"
                 />
 
                 <span>Admin@wheelgenie.ca</span>
@@ -156,7 +158,7 @@ export default function Footer() {
               <div className="flex gap-3">
                 <MapPin
                   size={17}
-                  className="mt-0.5 shrink-0"
+                  className="mt-0.5 shrink-0 text-slate-400"
                 />
 
                 <span>
@@ -173,7 +175,7 @@ export default function Footer() {
 
       {/* Copyright */}
       <div className="border-t border-white/10">
-        <div className="wg-container py-4 text-center text-xs text-slate-300">
+        <div className="wg-container py-4 text-center text-xs text-slate-400">
           © 2026 WheelGenie. All rights reserved.
         </div>
       </div>

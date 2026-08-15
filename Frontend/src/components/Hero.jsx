@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { heroActions } from "../data/homeData";
+import car from "../assets/car.png";
 
 const containerVariants = {
   hidden: {},
@@ -137,7 +138,7 @@ export default function Hero() {
             <div className="absolute h-[230px] w-[230px] rounded-full border-[24px] border-blue-50 sm:h-[300px] sm:w-[300px]" />
 
             <motion.img
-              src="src/assets/car.png"
+              src={car}
               alt="White car"
               className="relative z-10 w-full max-w-[600px] object-contain drop-shadow-[0_20px_25px_rgba(11,31,58,0.16)]"
               animate={{
