@@ -156,10 +156,10 @@ export default function Home() {
                 {/* Body Text */}
                 <div className="mt-6 space-y-3.5 text-[14px] leading-relaxed text-slate-500 font-medium">
                   <p>
-                    WheelGenie was founded by a team of automotive enthusiasts and tech innovators who recognized the complexities and friction inherent in traditional car transactions.
+                   Founded by a group of automotive enthusiasts and technology experts, Wheel Genie was born out of a shared frustration with the traditional vehicle buying, selling, and maintenance processes.
                   </p>
                   <p>
-                    Whether dealing with opaque bidding systems, inaccurate pricing data, or stressful negotiations, the process was ripe for a change.
+                   We knew there had to be a better way – a way that empowers individuals with knowledge, simplifies transactions, and connects them with trustworthy professionals.
                   </p>
                 </div>
               </div>
@@ -239,10 +239,10 @@ export default function Home() {
                 {/* Body Text */}
                 <div className="mt-6 space-y-3.5 text-[14px] leading-relaxed text-slate-500 font-medium">
                   <p>
-                    Our mission is to reshape the automotive world by delivering unparalleled convenience, transparency, and expert guidance directly to you.
+                   Our mission is to transform the vehicle landscape in Canada. We believe that every transaction, whether buying, selling, or maintaining a vehicle, should be characterized by fairness, transparency, and convenience.
                   </p>
                   <p>
-                    We aim to replace uncertainty with security, providing a transparent bidding process and accurate AI valuations.
+We’re committed to providing an inclusive platform that caters to all types of vehicles and all levels of expertise, bridging the gap between enthusiasts and experts.
                   </p>
                 </div>
               </div>
