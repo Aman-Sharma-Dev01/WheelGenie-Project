@@ -6,7 +6,7 @@ import {
 
 import {
   FaFacebookF,
-  FaInstagram,
+  FaLinkedinIn,
   FaTwitter,
   FaYoutube,
 } from "react-icons/fa";
@@ -50,9 +50,9 @@ const socialLinks = [
     label: "Facebook",
   },
   {
-    icon: FaInstagram,
+    icon: FaLinkedinIn,
     href: "#",
-    label: "Instagram",
+    label: "LinkedIn",
   },
   {
     icon: FaTwitter,
@@ -68,7 +68,7 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="bg-wg-navy text-white border-t border-white/5">
+    <footer className="bg-[#041527] text-white border-t border-white/5">
       <div className="wg-container py-10">
         <div className="grid gap-9 md:grid-cols-2 lg:grid-cols-[1.35fr_0.9fr_0.9fr_0.9fr_1.25fr]">
 
