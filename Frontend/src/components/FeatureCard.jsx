@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Search, Plus } from "lucide-react";
 
 const accentStyles = {
   blue: {
@@ -39,6 +39,8 @@ export default function FeatureCard({
         group
         relative
         flex
+        h-full
+        w-full
         min-h-[112px]
         overflow-hidden
         rounded-[12px]
@@ -59,6 +61,7 @@ export default function FeatureCard({
         {/* Icon */}
         <div
           className={`
+            relative
             flex
             h-[52px]
             w-[52px]
@@ -73,6 +76,16 @@ export default function FeatureCard({
             size={26}
             strokeWidth={1.8}
           />
+          {title === "Buy Cars" && (
+            <div className="absolute -bottom-1 -right-1 flex h-[22px] w-[22px] items-center justify-center rounded-full bg-blue-50 text-blue-600 shadow-[0_2px_5px_rgba(0,0,0,0.1)] border border-white">
+              <Search size={11} strokeWidth={2.5} />
+            </div>
+          )}
+          {title === "AI Calculator" && (
+            <div className="absolute -top-1.5 -right-1.5 flex h-[20px] w-[20px] items-center justify-center rounded-full bg-purple-50 text-purple-600 shadow-[0_2px_5px_rgba(0,0,0,0.05)] border border-white">
+              <Plus size={10} strokeWidth={3} />
+            </div>
+          )}
         </div>
 
         {/* Content */}
@@ -84,7 +97,7 @@ export default function FeatureCard({
           </h3>
 
           {/* Description */}
-          <p className="mt-1 max-w-[300px] text-[13px] leading-[1.45] text-slate-600">
+          <p className="mt-1 max-w-[220px] text-[13px] leading-[1.45] text-slate-600">
             {description}
           </p>
 

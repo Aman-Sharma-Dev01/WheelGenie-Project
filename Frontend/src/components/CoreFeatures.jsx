@@ -23,7 +23,7 @@ export default function CoreFeatures() {
           </p>
         </motion.div>
 
-        <div className="mt-7 grid gap-5 md:grid-cols-3">
+        <div className="mt-7 grid gap-5 md:grid-cols-3 max-w-[920px] mx-auto">
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
@@ -34,6 +34,7 @@ export default function CoreFeatures() {
                 duration: 0.5,
                 delay: index * 0.1,
               }}
+              className="flex flex-col h-full"
             >
               <FeatureCard {...feature} />
             </motion.div>

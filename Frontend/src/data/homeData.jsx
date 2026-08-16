@@ -36,7 +36,7 @@ export const features = [
   {
     title: "Buy Cars",
     description:
-      "Explore a wide range of verified cars. Compare and find the one that fits you best.",
+      "Explore a wide range of verified cars to find the one that fits you best.",
     linkText: "Explore Cars",
     href: "/buy",
     icon: CarFront,
