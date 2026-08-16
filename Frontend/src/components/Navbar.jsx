@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/logo.png.png";
+import VehicleHoverButton from "./VehicleHoverButton";
 
 const navigation = [
   { name: "Buy", href: "/buy", key: "buy" },
@@ -60,19 +61,21 @@ export default function Navbar({ activePage = "about" }) {
 
           {/* Desktop Actions */}
           <div className="hidden items-center gap-4 lg:flex">
-            <a
+            <VehicleHoverButton
               href="/login"
+              variant="login"
               className="rounded-lg border border-slate-200 px-7 py-3 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-slate-50 hover:text-wg-navy"
             >
               Log In
-            </a>
+            </VehicleHoverButton>
 
-            <a
+            <VehicleHoverButton
               href="/signup"
+              variant="signup"
               className="rounded-lg bg-wg-blue px-7 py-3 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(47,128,237,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-600"
             >
               Sign Up
-            </a>
+            </VehicleHoverButton>
           </div>
 
           {/* Mobile Menu Button */}
@@ -114,19 +117,21 @@ export default function Navbar({ activePage = "about" }) {
               ))}
 
               <div className="mt-4 flex gap-3 pb-3">
-                <a
+                <VehicleHoverButton
                   href="/login"
+                  variant="login"
                   className="flex-1 rounded-lg border border-slate-200 py-3 text-center text-sm font-medium text-slate-700 hover:bg-slate-50"
                 >
                   Log In
-                </a>
+                </VehicleHoverButton>
 
-                <a
+                <VehicleHoverButton
                   href="/signup"
+                  variant="signup"
                   className="flex-1 rounded-lg bg-wg-blue py-3 text-center text-sm font-semibold text-white hover:bg-blue-600"
                 >
                   Sign Up
-                </a>
+                </VehicleHoverButton>
               </div>
             </nav>
           </motion.div>
