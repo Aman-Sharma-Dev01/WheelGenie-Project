@@ -3,9 +3,9 @@ import {
   Tag,
   Calculator,
   UsersRound,
-  ShieldCheck,
   Award,
   Clock,
+  BadgeCheck,
 } from "lucide-react";
 
 export const heroActions = [
@@ -26,7 +26,7 @@ export const heroActions = [
   {
     title: "AI Calculator",
     description: "Get instant car value",
-    icon: Calculator,
+    icon: BadgeCheck,
     href: "/calculator",
     variant: "outline",
   },
