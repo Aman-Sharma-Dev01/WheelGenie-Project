@@ -1,5 +1,67 @@
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { stats } from "../data/homeData";
+
+function Counter({ value }) {
+  const [count, setCount] = useState(0);
+  const [started, setStarted] = useState(false);
+  const elementRef = useRef(null);
+
+  // Parse the value (e.g. "2,100+" -> target = 2100, suffix = "+", hasCommas = true)
+  const numStr = value.replace(/,/g, "");
+  const match = numStr.match(/^(\d+)(.*)$/);
+  const target = match ? parseInt(match[1], 10) : 0;
+  const suffix = match ? match[2] : "";
+  const hasCommas = value.includes(",");
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setStarted(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (elementRef.current) {
+      observer.observe(elementRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!started) return;
+
+    let startTimestamp = null;
+    const duration = 2000; // 2 seconds animation
+
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      
+      // easeOutQuad
+      const easeProgress = progress * (2 - progress);
+      const currentCount = Math.floor(easeProgress * target);
+
+      setCount(currentCount);
+
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      } else {
+        setCount(target);
+      }
+    };
+
+    window.requestAnimationFrame(step);
+  }, [started, target]);
+
+  const displayValue = hasCommas ? count.toLocaleString() : count;
+
+  return <span ref={elementRef}>{displayValue}{suffix}</span>;
+}
 
 export default function StatsSection() {
   return (
@@ -32,7 +94,7 @@ export default function StatsSection() {
 
                 <div>
                   <div className="wg-heading text-2xl font-bold text-white">
-                    {stat.value}
+                    <Counter value={stat.value} />
                   </div>
 
                   <div className="mt-0.5 text-xs text-slate-400">

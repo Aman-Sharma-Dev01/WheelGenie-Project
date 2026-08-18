@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Lightbulb, Shield, BookOpen, Rocket } from "lucide-react";
 import Navbar from "../components/Navbar";
@@ -72,6 +73,12 @@ const itemVariants = {
 };
 
 export default function Home() {
+  const [activeMember, setActiveMember] = useState(null);
+
+  const handleCardClick = (name) => {
+    setActiveMember((prev) => (prev === name ? null : name));
+  };
+
   return (
     <div className="min-h-screen bg-slate-50/30">
       <Navbar activePage="about" />
@@ -403,8 +410,9 @@ We’re committed to providing an inclusive platform that caters to all types of
                   whileHover={{ y: -6 }}
                   whileTap={{ scale: 0.98, y: -2 }}
                   transition={{ duration: 0.3 }}
+                  onClick={() => handleCardClick(member.name)}
                   style={{
-                    "--hover-glow": member.glowColor,
+                    "--hover-glow": "rgba(1, 40, 78, 0.25)",
                   }}
                   className={`
                     group
@@ -412,24 +420,34 @@ We’re committed to providing an inclusive platform that caters to all types of
                     overflow-hidden
                     rounded-2xl
                     border
-                    border-slate-200/50
-                    bg-white
-                    p-6
+                    p-4
+                    sm:p-6
                     text-center
-                    shadow-[0_4px_18px_rgba(11,31,58,0.015)]
                     backdrop-blur-md
                     transition-all
                     duration-300
-                    hover:bg-white
-                    hover:shadow-[0_12px_28px_var(--hover-glow)]
-                    ${member.borderColor}
+                    ease-in-out
+                    cursor-pointer
+                    ${
+                      activeMember === member.name
+                        ? "bg-[#01284E] border-[#01284E] shadow-[0_12px_28px_rgba(1,40,78,0.25)]"
+                        : "bg-white border-slate-200/50 hover:bg-[#01284E] hover:border-[#01284E] shadow-[0_4px_18px_rgba(11,31,58,0.015)] hover:shadow-[0_12px_28px_rgba(1,40,78,0.25)]"
+                    }
                   `}
                 >
                   {/* Decorative corner element */}
-                  <div className="absolute top-0 right-0 h-16 w-16 -translate-y-8 translate-x-8 rounded-full bg-slate-50/50 group-hover:bg-blue-50/30 transition-colors duration-300" />
+                  <div className={`absolute top-0 right-0 h-16 w-16 -translate-y-8 translate-x-8 rounded-full transition-colors duration-300 ${
+                    activeMember === member.name
+                      ? "bg-white/5"
+                      : "bg-slate-50/50 group-hover:bg-white/5"
+                  }`} />
 
                   {/* Profile Image Frame with hover scale */}
-                  <div className="relative mx-auto h-[160px] w-[160px] overflow-hidden rounded-full border-4 border-slate-100 bg-slate-50 shadow-inner group-hover:scale-105 group-hover:border-white transition-all duration-300">
+                  <div className={`relative mx-auto h-[130px] w-[130px] sm:h-[160px] sm:w-[160px] overflow-hidden rounded-full border-4 bg-slate-50 shadow-inner group-hover:scale-105 transition-all duration-300 ${
+                    activeMember === member.name
+                      ? "border-white"
+                      : "border-slate-100 group-hover:border-white"
+                  }`}>
                     <img
                       src={member.image}
                       alt={member.name}
@@ -438,20 +456,36 @@ We’re committed to providing an inclusive platform that caters to all types of
                   </div>
 
                   {/* Member Name */}
-                  <h3 className="wg-heading mt-5 text-lg font-bold leading-snug text-wg-navy group-hover:text-wg-blue transition-colors duration-200">
+                  <h3 className={`wg-heading mt-4 sm:mt-5 text-base sm:text-lg font-bold leading-snug transition-colors duration-200 ${
+                    activeMember === member.name
+                      ? "text-white"
+                      : "text-wg-navy group-hover:text-white"
+                  }`}>
                     {member.name}
                   </h3>
 
                   {/* Member Role */}
-                  <p className="mt-1 text-xs font-medium text-slate-500 uppercase tracking-wide">
+                  <p className={`mt-1 text-xs font-medium uppercase tracking-wide transition-colors duration-200 ${
+                    activeMember === member.name
+                      ? "text-[#AAB8C8]"
+                      : "text-slate-500 group-hover:text-[#AAB8C8]"
+                  }`}>
                     {member.role}
                   </p>
 
                   {/* Divider */}
-                  <div className="my-4 mx-auto w-12 border-t border-slate-100 group-hover:w-16 transition-all duration-300" />
+                  <div className={`my-3 sm:my-4 mx-auto w-12 border-t transition-all duration-300 ${
+                    activeMember === member.name
+                      ? "border-[#AAB8C8]/40 w-16"
+                      : "border-slate-100 group-hover:border-[#AAB8C8]/40 group-hover:w-16"
+                  }`} />
 
                   {/* Hover effect light glow */}
-                  <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-wg-blue to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className={`absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-wg-blue to-transparent transition-opacity duration-300 ${
+                    activeMember === member.name
+                      ? "opacity-100"
+                      : "opacity-0 group-hover:opacity-100"
+                  }`} />
                 </motion.div>
               ))}
             </motion.div>
