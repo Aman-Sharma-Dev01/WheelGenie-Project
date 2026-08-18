@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import { ResponsiveProvider } from "./context/ResponsiveContext";
 
 function Placeholder({ title, pageKey }) {
   return (
@@ -19,7 +20,8 @@ function Placeholder({ title, pageKey }) {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <ResponsiveProvider>
+      <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
 
@@ -54,5 +56,6 @@ export default function App() {
         />
       </Routes>
     </BrowserRouter>
-  );
+  </ResponsiveProvider>
+);
 }
