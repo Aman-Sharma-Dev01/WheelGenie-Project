@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { ResponsiveProvider } from "./context/ResponsiveContext";
+import AICalculator from "./pages/AiCalculater";
 
 function Placeholder({ title, pageKey }) {
   return (
@@ -37,8 +38,9 @@ export default function App() {
 
         <Route
           path="/calculator"
-          element={<Placeholder title="AI Calculator" pageKey="calculator" />}
+          element={<AICalculator/>}
         />
+
 
         <Route
           path="/about"
