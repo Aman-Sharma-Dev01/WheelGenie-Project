@@ -8,6 +8,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { ResponsiveProvider } from "./context/ResponsiveContext";
 import { AuthProvider } from "./context/AuthContext";
+import AICalculator from "./pages/AiCalculater";
 
 function Placeholder({ title, pageKey }) {
   return (
@@ -53,6 +54,17 @@ export default function App() {
               path="/about"
               element={<Home />}
             />
+
+        <Route
+          path="/calculator"
+          element={<AICalculator/>}
+        />
+
+
+        <Route
+          path="/about"
+          element={<Home />}
+        />
 
             <Route
               path="/how-it-works"
