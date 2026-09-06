@@ -1,8 +1,13 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+﻿import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
+import Sell from "./pages/Sell";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import ChooseRole from "./pages/ChooseRole";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { ResponsiveProvider } from "./context/ResponsiveContext";
+import { AuthProvider } from "./context/AuthContext";
 
 function Placeholder({ title, pageKey }) {
   return (
@@ -21,41 +26,46 @@ function Placeholder({ title, pageKey }) {
 export default function App() {
   return (
     <ResponsiveProvider>
-      <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/choose-role" element={<ChooseRole />} />
 
-        <Route
-          path="/buy"
-          element={<Placeholder title="Buy Cars" pageKey="buy" />}
-        />
+            <Route
+              path="/buy"
+              element={<Placeholder title="Buy Cars" pageKey="buy" />}
+            />
 
-        <Route
-          path="/sell"
-          element={<Placeholder title="Sell Your Car" pageKey="sell" />}
-        />
+            <Route
+              path="/sell"
+              element={<Sell />}
+            />
 
-        <Route
-          path="/calculator"
-          element={<Placeholder title="AI Calculator" pageKey="calculator" />}
-        />
+            <Route
+              path="/calculator"
+              element={<Placeholder title="AI Calculator" pageKey="calculator" />}
+            />
 
-        <Route
-          path="/about"
-          element={<Home />}
-        />
+            <Route
+              path="/about"
+              element={<Home />}
+            />
 
-        <Route
-          path="/how-it-works"
-          element={<Placeholder title="How It Works" pageKey="how" />}
-        />
+            <Route
+              path="/how-it-works"
+              element={<Placeholder title="How It Works" pageKey="how" />}
+            />
 
-        <Route
-          path="/contact"
-          element={<Placeholder title="Contact" pageKey="contact" />}
-        />
-      </Routes>
-    </BrowserRouter>
-  </ResponsiveProvider>
-);
+            <Route
+              path="/contact"
+              element={<Placeholder title="Contact" pageKey="contact" />}
+            />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </ResponsiveProvider>
+  );
 }

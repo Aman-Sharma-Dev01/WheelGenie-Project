@@ -1,8 +1,10 @@
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
+﻿import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Menu, X, LogOut, User as UserIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/logo.png.png";
 import VehicleHoverButton from "./VehicleHoverButton";
+import { useAuth } from "../context/AuthContext";
 
 const navigation = [
   { name: "Buy", href: "/buy", key: "buy" },
@@ -15,6 +17,17 @@ const navigation = [
 
 export default function Navbar({ activePage = "about" }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
+
+  const getInitials = (name) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-md">
@@ -22,8 +35,8 @@ export default function Navbar({ activePage = "about" }) {
         <div className="flex h-[76px] items-center justify-between">
           
           {/* Logo */}
-          <a
-            href="/"
+          <Link
+            to="/"
             className="flex shrink-0 items-center"
             aria-label="WheelGenie Home"
           >
@@ -32,7 +45,7 @@ export default function Navbar({ activePage = "about" }) {
               alt="WheelGenie"
               className="h-[180px] w-[180px] object-contain -mt-[40px] -mb-[64px]"
             />
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden items-center gap-9 lg:flex">
@@ -40,9 +53,9 @@ export default function Navbar({ activePage = "about" }) {
               const active = activePage === item.key;
 
               return (
-                <a
+                <Link
                   key={item.key}
-                  href={item.href}
+                  to={item.href}
                   className={`group relative py-7 text-[15px] font-medium transition-colors duration-200 ${
                     active ? "text-wg-blue" : "text-slate-600 hover:text-wg-navy"
                   }`}
@@ -54,28 +67,58 @@ export default function Navbar({ activePage = "about" }) {
                       active ? "w-full" : "w-0 group-hover:w-full"
                     }`}
                   />
-                </a>
+                </Link>
               );
             })}
           </nav>
 
           {/* Desktop Actions */}
           <div className="hidden items-center gap-4 lg:flex">
-            <VehicleHoverButton
-              href="/login"
-              variant="login"
-              className="rounded-lg border border-slate-200 px-7 py-3 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-slate-50 hover:text-wg-navy"
-            >
-              Log In
-            </VehicleHoverButton>
+            {isAuthenticated && user ? (
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200/80">
+                  <div className="w-8 h-8 rounded-full bg-wg-blue text-white flex items-center justify-center text-xs font-bold shadow-sm">
+                    {getInitials(user.name)}
+                  </div>
+                  <div className="flex flex-col text-left pr-1">
+                    <span className="text-xs font-semibold text-wg-navy leading-none">
+                      {user.name}
+                    </span>
+                    <span className="text-[10px] text-slate-500 capitalize leading-tight">
+                      {user.role || "Customer"}
+                    </span>
+                  </div>
+                </div>
 
-            <VehicleHoverButton
-              href="/signup"
-              variant="signup"
-              className="rounded-lg bg-wg-blue px-7 py-3 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(47,128,237,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-600"
-            >
-              Sign Up
-            </VehicleHoverButton>
+                <button
+                  type="button"
+                  onClick={logout}
+                  className="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-all flex items-center gap-1.5 cursor-pointer"
+                  title="Sign Out"
+                >
+                  <LogOut size={15} />
+                  <span>Logout</span>
+                </button>
+              </div>
+            ) : (
+              <>
+                <VehicleHoverButton
+                  href="/login"
+                  variant="login"
+                  className="rounded-lg border border-slate-200 px-7 py-3 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-slate-50 hover:text-wg-navy inline-block text-center"
+                >
+                  Log In
+                </VehicleHoverButton>
+
+                <VehicleHoverButton
+                  href="/signup"
+                  variant="signup"
+                  className="rounded-lg bg-wg-blue px-7 py-3 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(47,128,237,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-600 inline-block text-center"
+                >
+                  Sign Up
+                </VehicleHoverButton>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -102,9 +145,9 @@ export default function Navbar({ activePage = "about" }) {
           >
             <nav className="wg-container flex flex-col py-4">
               {navigation.map((item) => (
-                <a
+                <Link
                   key={item.key}
-                  href={item.href}
+                  to={item.href}
                   onClick={() => setMobileOpen(false)}
                   className={`border-b border-slate-100 py-4 text-sm font-medium ${
                     activePage === item.key
@@ -113,25 +156,54 @@ export default function Navbar({ activePage = "about" }) {
                   }`}
                 >
                   {item.name}
-                </a>
+                </Link>
               ))}
 
-              <div className="mt-4 flex gap-3 pb-3">
-                <VehicleHoverButton
-                  href="/login"
-                  variant="login"
-                  className="flex-1 rounded-lg border border-slate-200 py-3 text-center text-sm font-medium text-slate-700 hover:bg-slate-50"
-                >
-                  Log In
-                </VehicleHoverButton>
+              <div className="mt-4 pt-2">
+                {isAuthenticated && user ? (
+                  <div className="flex flex-col gap-3 pb-3">
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                      <div className="w-9 h-9 rounded-full bg-wg-blue text-white flex items-center justify-center text-xs font-bold">
+                        {getInitials(user.name)}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-wg-navy">{user.name}</span>
+                        <span className="text-xs text-slate-500">{user.email}</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        logout();
+                        setMobileOpen(false);
+                      }}
+                      className="w-full rounded-lg border border-red-200 bg-red-50/50 py-3 text-center text-sm font-medium text-red-600 hover:bg-red-50 flex items-center justify-center gap-2"
+                    >
+                      <LogOut size={16} />
+                      <span>Log Out</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-3 pb-3">
+                    <VehicleHoverButton
+                      href="/login"
+                      variant="login"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex-1 rounded-lg border border-slate-200 py-3 text-center text-sm font-medium text-slate-700 hover:bg-slate-50 block"
+                    >
+                      Log In
+                    </VehicleHoverButton>
 
-                <VehicleHoverButton
-                  href="/signup"
-                  variant="signup"
-                  className="flex-1 rounded-lg bg-wg-blue py-3 text-center text-sm font-semibold text-white hover:bg-blue-600"
-                >
-                  Sign Up
-                </VehicleHoverButton>
+                    <VehicleHoverButton
+                      href="/signup"
+                      variant="signup"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex-1 rounded-lg bg-wg-blue py-3 text-center text-sm font-semibold text-white hover:bg-blue-600 block"
+                    >
+                      Sign Up
+                    </VehicleHoverButton>
+                  </div>
+                )}
               </div>
             </nav>
           </motion.div>

@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
 import hotwheel from "../assets/hotwheel.png";
 
-export default function VehicleHoverButton({ href, className, variant, children }) {
+export default function VehicleHoverButton({ href, onClick, className, variant, children }) {
   const buttonRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 120, height: 44 });
@@ -93,16 +94,31 @@ export default function VehicleHoverButton({ href, className, variant, children 
       onMouseEnter={() => !isTouchDevice && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <a
-        ref={buttonRef}
-        href={href}
-        className={`${className} relative z-10 transition-all ${
-          isHovered ? glowStyle : ""
-        }`}
-        style={{ transformStyle: "preserve-3d" }}
-      >
-        {children}
-      </a>
+      {href && href.startsWith('/') ? (
+        <Link
+          ref={buttonRef}
+          to={href}
+          onClick={onClick}
+          className={`${className} relative z-10 transition-all ${
+            isHovered ? glowStyle : ""
+          }`}
+          style={{ transformStyle: "preserve-3d" }}
+        >
+          {children}
+        </Link>
+      ) : (
+        <a
+          ref={buttonRef}
+          href={href || "#"}
+          onClick={onClick}
+          className={`${className} relative z-10 transition-all ${
+            isHovered ? glowStyle : ""
+          }`}
+          style={{ transformStyle: "preserve-3d" }}
+        >
+          {children}
+        </a>
+      )}
 
       <AnimatePresence>
         {isHovered && !isTouchDevice && (
