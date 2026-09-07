@@ -1,5 +1,5 @@
-﻿import { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, User, Phone, Eye, EyeOff, ChevronLeft, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -10,8 +10,11 @@ import car from '../assets/car.png';
 
 export default function Signup() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { signup } = useAuth();
+
+  const redirectPath = location.state?.from?.pathname || '/';
 
   const initialRole = searchParams.get('role') === 'seller' ? 'seller' : 'buyer';
   const [role, setRole] = useState(initialRole);
@@ -83,7 +86,7 @@ export default function Signup() {
         password: formData.password,
         role: 'customer',
       });
-      navigate('/', { replace: true });
+      navigate(redirectPath, { replace: true });
     } catch (err) {
       setError(getApiErrorMessage(err));
     } finally {
@@ -374,6 +377,7 @@ export default function Signup() {
             Already have an account?{' '}
             <Link
               to={role === 'seller' ? '/login?role=seller' : '/login?role=buyer'}
+              state={location.state}
               className="font-semibold text-[#6c42f5] hover:underline"
             >
               Log In

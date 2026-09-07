@@ -1,4 +1,4 @@
-﻿import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Sell from "./pages/Sell";
 import Login from "./pages/Login";
@@ -9,6 +9,7 @@ import Footer from "./components/Footer";
 import { ResponsiveProvider } from "./context/ResponsiveContext";
 import { AuthProvider } from "./context/AuthContext";
 import AICalculator from "./pages/AiCalculater";
+import Contact from "./pages/Contact";
 
 function Placeholder({ title, pageKey }) {
   return (
@@ -73,7 +74,7 @@ export default function App() {
 
             <Route
               path="/contact"
-              element={<Placeholder title="Contact" pageKey="contact" />}
+              element={<Contact />}
             />
           </Routes>
         </BrowserRouter>

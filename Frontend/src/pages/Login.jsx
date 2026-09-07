@@ -181,7 +181,7 @@ export default function Login() {
               {/* Email Address */}
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Mail size={16} />
+                  <Mail size={16} stroke="black" strokeWidth={2.5} />
                 </div>
                 <input
                   type="email"
@@ -198,7 +198,7 @@ export default function Login() {
               {/* Password */}
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Lock size={16} />
+                  <Lock size={16} stroke="black" strokeWidth={2.5} />
                 </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -215,7 +215,7 @@ export default function Login() {
                   onClick={() => setShowPassword((prev) => !prev)}
                   className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPassword ? <EyeOff size={16} stroke="black" strokeWidth={2.5} /> : <Eye size={16} stroke="black" strokeWidth={2.5} />}
                 </button>
               </div>
 
@@ -288,6 +288,7 @@ export default function Login() {
             Don't have an account?{' '}
             <Link
               to={role === 'seller' ? '/signup?role=seller' : '/signup?role=buyer'}
+              state={location.state}
               className="font-semibold text-[#6c42f5] hover:underline"
             >
               Sign Up
@@ -341,7 +342,7 @@ export default function Login() {
           <div className="relative my-auto py-6 z-10 flex flex-col items-center">
             <motion.img
               key={role}
-              src={role === 'buyer' ? car1 : car}
+              src={role === 'buyer' ? car1Img : carImg}
               alt="WheelGenie Car"
               className="w-full max-w-[280px] drop-shadow-[0_20px_30px_rgba(0,0,0,0.55)] object-contain select-none pointer-events-none"
               initial={{ y: 8, opacity: 0 }}
