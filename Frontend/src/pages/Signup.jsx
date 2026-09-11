@@ -84,7 +84,7 @@ export default function Signup() {
         email: formData.email.trim().toLowerCase(),
         phone: formData.phone.trim(),
         password: formData.password,
-        role: 'customer',
+        role: role === 'seller' ? 'official' : 'customer',
       });
       navigate(redirectPath, { replace: true });
     } catch (err) {
