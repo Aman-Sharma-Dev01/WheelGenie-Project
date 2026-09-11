@@ -384,97 +384,120 @@ export default function Contact() {
       {/* =================================================================== */}
       {/* 2. HOW CAN WE HELP? (Topic Selection Cards)                         */}
       {/* =================================================================== */}
-      <section className="py-14 bg-white border-b border-slate-100">
-        <div className="wg-container">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+      <section className="relative py-16 sm:py-20 bg-[#041527] overflow-hidden border-y border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+        {/* Ambient Glassmorphic Background Glow Spheres */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 overflow-hidden select-none"
+        >
+          {/* Top specular edge highlight */}
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-400/40 to-transparent" />
+
+          {/* Glowing gradient atmosphere orbs */}
+          <div className="absolute -top-24 -left-20 w-[420px] h-[420px] bg-[#2F80ED]/20 rounded-full blur-[130px]" />
+          <div className="absolute -bottom-24 -right-20 w-[420px] h-[420px] bg-[#6c42f5]/20 rounded-full blur-[130px]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[260px] bg-sky-500/10 rounded-full blur-[140px]" />
+        </div>
+
+        <div className="wg-container relative z-10">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-blue-400 bg-blue-500/15 border border-blue-400/25 px-3.5 py-1 rounded-full backdrop-blur-md shadow-sm">
               HOW CAN WE HELP?
             </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1.5 font-['Poppins',sans-serif]">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white mt-3 font-['Poppins',sans-serif] tracking-tight">
               Choose a topic so we can direct you better
             </h2>
+            <p className="text-xs sm:text-sm text-slate-300 mt-2 max-w-lg mx-auto leading-relaxed">
+              Select a topic below so our specialists can guide you directly.
+            </p>
           </div>
 
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-  {topics.map((t) => {
-    const IconComp = t.icon;
-    const isSelected = formData.topic === t.name;
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {topics.map((t) => {
+              const IconComp = t.icon;
+              const isSelected = formData.topic === t.name;
 
-    return (
-      <button
-        key={t.id}
-        type="button"
-        onClick={() => handleTopicSelect(t.name)}
-        className="text-left cursor-pointer group h-[200px]"
-      >
-        {/* 3D container */}
-        <div
-          className="
-            relative w-full h-full
-            [perspective:1000px]
-          "
-        >
-          {/* Flipping card */}
-          <div
-            className={`
-              relative w-full h-full
-              transition-transform duration-700
-              [transform-style:preserve-3d]
-              group-hover:[transform:rotateY(180deg)]
-            `}
-          >
-            {/* ================= FRONT ================= */}
-            <div
-              className={`
-                absolute inset-0
-                p-6 rounded-2xl border
-                flex flex-col justify-between
-                [backface-visibility:hidden]
-                transition-all duration-200
-                ${
-                  isSelected
-                    ? "border-wg-blue bg-blue-50/50 shadow-md ring-2 ring-blue-500/20"
-                    : "border-slate-200/90 bg-white shadow-sm"
-                }
-              `}
-            >
-              <div>
-                {/* Icon */}
-                <div
-                  className={`
-                    w-12 h-12 rounded-xl
-                    flex items-center justify-center
-                    mb-4 border
-                    ${t.iconBg}
-                  `}
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => handleTopicSelect(t.name)}
+                  className="text-left cursor-pointer group h-[200px]"
                 >
-                  <IconComp size={22} />
-                </div>
+                  {/* 3D container */}
+                  <div
+                    className="
+                      relative w-full h-full
+                      [perspective:1000px]
+                    "
+                  >
+                    {/* Flipping card */}
+                    <div
+                      className={`
+                        relative w-full h-full
+                        transition-transform duration-700
+                        [transform-style:preserve-3d]
+                        group-hover:[transform:rotateY(180deg)]
+                      `}
+                    >
+                      {/* ================= FRONT (Glassmorphic) ================= */}
+                      <div
+                        className={`
+                          absolute inset-0
+                          p-6 rounded-2xl border
+                          flex flex-col justify-between
+                          [backface-visibility:hidden]
+                          transition-all duration-300
+                          backdrop-blur-xl
+                          overflow-hidden
+                          ${
+                            isSelected
+                              ? "border-blue-400 bg-blue-500/25 shadow-[0_8px_25px_rgba(47,128,237,0.35)] ring-2 ring-blue-400/50"
+                              : "border-white/15 bg-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:bg-white/[0.14] hover:border-white/30"
+                          }
+                        `}
+                      >
+                        {/* Top subtle sheen reflection */}
+                        <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/[0.08] to-transparent pointer-events-none rounded-t-2xl" />
 
-                {/* Title */}
-                <h3 className="text-base font-bold text-slate-900">
-                  {t.name}
-                </h3>
+                        <div className="relative z-10">
+                          {/* Icon */}
+                          <div
+                            className={`
+                              w-12 h-12 rounded-xl
+                              flex items-center justify-center
+                              mb-4 border border-white/20
+                              bg-white/10 backdrop-blur-md text-white
+                              shadow-sm
+                            `}
+                          >
+                            <IconComp size={22} className="text-blue-300 group-hover:scale-110 transition-transform duration-300" />
+                          </div>
 
-                {/* Description */}
-                <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
-                  {t.desc}
-                </p>
-              </div>
+                          {/* Title */}
+                          <h3 className="text-base font-bold text-white tracking-tight">
+                            {t.name}
+                          </h3>
 
-              {/* CTA */}
-              <div className="mt-5 flex items-center gap-1 text-xs font-semibold text-wg-blue">
-                <span>{t.cta}</span>
+                          {/* Description */}
+                          <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            {t.desc}
+                          </p>
+                        </div>
 
-                <ArrowRight
-                  size={14}
-                  className="
-                    transition-transform duration-300
-                    group-hover:translate-x-1
-                  "
-                />
-              </div>
-            </div>
+                        {/* CTA */}
+                        <div className="relative z-10 mt-5 flex items-center gap-1.5 text-xs font-semibold text-blue-400 group-hover:text-blue-300 transition-colors">
+                          <span>{t.cta}</span>
+
+                          <ArrowRight
+                            size={14}
+                            className="
+                              transition-transform duration-300
+                              group-hover:translate-x-1.5
+                            "
+                          />
+                        </div>
+                      </div>
   {/* ================= BACK ================= */}
 <div
   className={`
@@ -1128,17 +1151,25 @@ export default function Contact() {
                   return (
                     <div
                       key={idx}
-                      className="rounded-2xl border border-slate-200/80 bg-white overflow-hidden shadow-sm transition-all"
+                      className={`rounded-2xl border overflow-hidden transition-all ${
+                        isOpen
+                          ? 'border-[#155DFB]/40 shadow-md'
+                          : 'border-slate-200/80 bg-white shadow-sm'
+                      }`}
                     >
                       <button
                         type="button"
                         onClick={() => toggleFaq(idx)}
-                        className="w-full text-left p-5 flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/60 transition-colors"
+                        className={`w-full text-left p-5 flex items-center justify-between gap-4 cursor-pointer transition-colors ${
+                          isOpen ? 'bg-white' : 'hover:bg-slate-50/60 bg-white'
+                        }`}
                       >
-                        <span className="text-sm font-semibold text-slate-900">
+                        <span className={`text-sm font-semibold transition-colors ${isOpen ? 'text-[#155DFB]' : 'text-slate-900'}`}>
                           {faq.question}
                         </span>
-                        <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 shrink-0">
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-colors ${
+                          isOpen ? 'bg-[#155DFB]/10 text-[#155DFB]' : 'bg-slate-100 text-slate-600'
+                        }`}>
                           {isOpen ? <Minus size={14} /> : <Plus size={14} />}
                         </div>
                       </button>
@@ -1150,9 +1181,9 @@ export default function Contact() {
                             animate={{ height: 'auto', opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
                             transition={{ duration: 0.2 }}
-                            className="overflow-hidden"
+                            className="overflow-hidden bg-[#155DFB]"
                           >
-                            <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100">
+                            <div className="p-5 text-xs sm:text-sm text-white leading-relaxed font-normal">
                               {faq.answer}
                             </div>
                           </motion.div>
