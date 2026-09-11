@@ -8,6 +8,7 @@ import Hero from "../components/Hero";
 import CoreFeatures from "../components/CoreFeatures";
 import StatsSection from "../components/StatsSection";
 import Footer from "../components/Footer";
+import AmbientBackground from "../components/AmbientBackground";
 
 // Import Assets
 import carImage from "../assets/car.png";
@@ -40,8 +41,8 @@ const teamMembers = [
     role: "Head of Finance",
     image: img3,
     accent: "purple",
-    glowColor: "rgba(124, 58, 237, 0.25)",
-    borderColor: "hover:border-wg-purple/50",
+    glowColor: "rgba(183, 94, 255, 0.25)",
+    borderColor: "hover:border-[#B75EFF]/50",
   },
   {
     name: "Harvinder Singh",
@@ -52,6 +53,33 @@ const teamMembers = [
     borderColor: "hover:border-wg-navy/50",
   },
 ];
+
+const teamAccentStyles = {
+  blue: {
+    highlightBg:
+      "bg-[rgba(47,128,237,0.08)] border-blue-300/70 shadow-[0_20px_45px_-10px_rgba(47,128,237,0.22),0_0_20px_rgba(47,128,237,0.12)]",
+    glowLine: "via-[#2F80ED]",
+    avatarBorder: "border-[#2F80ED]",
+  },
+  green: {
+    highlightBg:
+      "bg-[rgba(39,174,96,0.08)] border-green-300/70 shadow-[0_20px_45px_-10px_rgba(39,174,96,0.22),0_0_20px_rgba(39,174,96,0.12)]",
+    glowLine: "via-[#27AE60]",
+    avatarBorder: "border-[#27AE60]",
+  },
+  purple: {
+    highlightBg:
+      "bg-[rgba(183,94,255,0.09)] border-[#B75EFF]/45 shadow-[0_20px_45px_-10px_rgba(183,94,255,0.26),0_0_22px_rgba(183,94,255,0.14)]",
+    glowLine: "via-[#B75EFF]",
+    avatarBorder: "border-[#B75EFF]",
+  },
+  navy: {
+    highlightBg:
+      "bg-[rgba(11,31,58,0.07)] border-slate-300/80 shadow-[0_20px_45px_-10px_rgba(11,31,58,0.20),0_0_20px_rgba(11,31,58,0.10)]",
+    glowLine: "via-[#0B1F3A]",
+    avatarBorder: "border-wg-navy",
+  },
+};
 
 const containerVariants = {
   hidden: {},
@@ -114,10 +142,13 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/30">
+    <div className="relative min-h-screen bg-[#FAFCFF] text-wg-text selection:bg-[#B75EFF]/20 selection:text-wg-navy">
+      {/* Ambient Continuous Color Atmosphere */}
+      <AmbientBackground />
+
       <Navbar activePage="about" />
 
-      <main className="overflow-hidden">
+      <main className="relative z-10 overflow-hidden">
         {/* Core Main Sections */}
         <Hero />
         <CoreFeatures />
@@ -790,13 +821,16 @@ export default function Home() {
 
 
         {/* CEO Message Banner Section (Matches Shared Reference Image Bottom Banner Exactly) */}
-        <section className="wg-container py-14">
+        <section className="wg-container py-14 relative">
+          {/* Atmospheric back-glow behind CEO banner */}
+          <div className="pointer-events-none absolute inset-x-8 -inset-y-2 rounded-3xl bg-gradient-to-r from-[#2F80ED]/15 via-[#B75EFF]/12 to-[#F59E0B]/10 blur-2xl opacity-75 -z-10" />
+
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="grid overflow-hidden rounded-3xl border border-slate-200/50 bg-[#041527] shadow-[0_20px_50px_rgba(4,21,39,0.15)] lg:grid-cols-[1.3fr_0.7fr]"
+            className="grid overflow-hidden rounded-3xl border border-white/15 bg-[#041527] shadow-[0_20px_50px_rgba(4,21,39,0.20)] lg:grid-cols-[1.3fr_0.7fr]"
           >
             {/* Left Side: Dark Navy Quote & Message Block */}
             <div className="relative flex flex-col justify-center px-8 py-14 text-white sm:px-14 lg:py-16">
@@ -925,6 +959,7 @@ export default function Home() {
                 const isHighlighted = isDesktop
                   ? hoveredMember === member.name
                   : activeMember === member.name;
+                const accentStyle = teamAccentStyles[member.accent] || teamAccentStyles.blue;
 
                 return (
                   <motion.div
@@ -936,9 +971,6 @@ export default function Home() {
                     onTap={() => handleCardClick(member.name)}
                     onMouseEnter={() => handleMouseEnter(member.name)}
                     onMouseLeave={handleMouseLeave}
-                    style={{
-                      "--hover-glow": "rgba(1, 40, 78, 0.25)",
-                    }}
                     className={`
                       group
                       relative
@@ -948,31 +980,38 @@ export default function Home() {
                       p-4
                       sm:p-6
                       text-center
-                      backdrop-blur-md
+                      backdrop-blur-xl
                       transition-all
-                      duration-300
-                      ease-in-out
+                      duration-500
+                      ease-[cubic-bezier(0.16,1,0.3,1)]
                       cursor-pointer
                       ${
                         isHighlighted
-                          ? "bg-[#01284E] border-[#01284E] shadow-[0_12px_28px_rgba(1,40,78,0.25)]"
-                          : "bg-white border-slate-200/50 shadow-[0_4px_18px_rgba(11,31,58,0.015)]"
+                          ? `${accentStyle.highlightBg} scale-[1.02]`
+                          : "bg-white/85 border-slate-200/80 shadow-[0_4px_18px_rgba(11,31,58,0.02)] hover:border-slate-300"
                       }
                     `}
                   >
+                    {/* Top glass reflection highlight */}
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-[40%] bg-gradient-to-b from-white/70 via-white/20 to-transparent rounded-t-2xl opacity-60 group-hover:opacity-100 transition-opacity duration-500 z-0" />
+
                     {/* Decorative corner element */}
-                    <div className={`absolute top-0 right-0 h-16 w-16 -translate-y-8 translate-x-8 rounded-full transition-colors duration-300 ${
-                      isHighlighted
-                        ? "bg-white/5"
-                        : "bg-slate-50/50"
-                    }`} />
+                    <div
+                      className={`absolute top-0 right-0 h-16 w-16 -translate-y-8 translate-x-8 rounded-full transition-colors duration-500 ${
+                        isHighlighted
+                          ? "bg-white/25"
+                          : "bg-slate-100/50"
+                      }`}
+                    />
 
                     {/* Profile Image Frame with hover scale */}
-                    <div className={`relative mx-auto h-[130px] w-[130px] sm:h-[160px] sm:w-[160px] overflow-hidden rounded-full border-4 bg-slate-50 shadow-inner group-hover:scale-105 transition-all duration-300 ${
-                      isHighlighted
-                        ? "border-white"
-                        : "border-slate-100"
-                    }`}>
+                    <div
+                      className={`relative z-10 mx-auto h-[130px] w-[130px] sm:h-[160px] sm:w-[160px] overflow-hidden rounded-full border-4 bg-slate-50 shadow-inner group-hover:scale-105 transition-all duration-500 ${
+                        isHighlighted
+                          ? `${accentStyle.avatarBorder} shadow-[0_4px_20px_rgba(0,0,0,0.08)]`
+                          : "border-slate-100"
+                      }`}
+                    >
                       <img
                         src={member.image}
                         alt={member.name}
@@ -981,36 +1020,42 @@ export default function Home() {
                     </div>
 
                     {/* Member Name */}
-                    <h3 className={`wg-heading mt-4 sm:mt-5 text-base sm:text-lg font-bold leading-snug transition-colors duration-200 ${
-                      isHighlighted
-                        ? "text-white"
-                        : "text-wg-navy"
-                    }`}>
+                    <h3
+                      className={`wg-heading relative z-10 mt-4 sm:mt-5 text-base sm:text-lg font-bold leading-snug transition-colors duration-300 ${
+                        isHighlighted
+                          ? "text-wg-navy drop-shadow-sm"
+                          : "text-wg-navy"
+                      }`}
+                    >
                       {member.name}
                     </h3>
 
                     {/* Member Role */}
-                    <p className={`mt-1 text-xs font-medium uppercase tracking-wide transition-colors duration-200 ${
-                      isHighlighted
-                        ? "text-[#AAB8C8]"
-                        : "text-slate-500"
-                    }`}>
+                    <p
+                      className={`relative z-10 mt-1 text-xs font-semibold uppercase tracking-wide transition-colors duration-300 ${
+                        isHighlighted
+                          ? "text-slate-600"
+                          : "text-slate-500"
+                      }`}
+                    >
                       {member.role}
                     </p>
 
                     {/* Divider */}
-                    <div className={`my-3 sm:my-4 mx-auto w-12 border-t transition-all duration-300 ${
-                      isHighlighted
-                        ? "border-[#AAB8C8]/40 w-16"
-                        : "border-slate-100"
-                    }`} />
+                    <div
+                      className={`relative z-10 my-3 sm:my-4 mx-auto border-t transition-all duration-500 ${
+                        isHighlighted
+                          ? "border-slate-300/60 w-16"
+                          : "border-slate-100 w-12"
+                      }`}
+                    />
 
-                    {/* Hover effect light glow */}
-                    <div className={`absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-wg-blue to-transparent transition-opacity duration-300 ${
-                      isHighlighted
-                        ? "opacity-100"
-                        : "opacity-0"
-                    }`} />
+                    {/* Hover accent light glow line */}
+                    <div
+                      className={`absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent ${accentStyle.glowLine} to-transparent transition-opacity duration-500 ${
+                        isHighlighted ? "opacity-100" : "opacity-0"
+                      }`}
+                    />
                   </motion.div>
                 );
               })}

@@ -45,10 +45,8 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-r from-[#F8FBFF] via-white to-[#F3F8FF]">
+    <section className="relative overflow-hidden bg-gradient-to-b from-white/90 via-transparent to-white/70">
       
-
-
       <div className="wg-container relative">
         <div className="grid min-h-[430px] items-center gap-8 py-12 lg:grid-cols-[1.25fr_0.75fr] lg:py-10">
           
@@ -66,7 +64,7 @@ export default function Hero() {
               Buy, Sell and value your
               <br />
               car with{" "}
-              <span className="text-wg-blue">AI.</span>
+              <span className="text-wg-blue drop-shadow-[0_2px_12px_rgba(47,128,237,0.20)]">AI.</span>
             </motion.h1>
 
             <motion.p
@@ -86,10 +84,10 @@ export default function Hero() {
                 const Icon = action.icon;
 
                 const styles = {
-                  navy: "bg-wg-navy text-white",
-                  blue: "bg-wg-blue text-white",
+                  navy: "bg-wg-navy text-white hover:shadow-[0_12px_28px_rgba(11,31,58,0.25)]",
+                  blue: "bg-wg-blue text-white hover:bg-blue-600 hover:shadow-[0_12px_28px_rgba(47,128,237,0.35)]",
                   outline:
-                    "border border-wg-blue bg-white text-wg-blue",
+                    "border border-wg-blue/50 bg-white/90 backdrop-blur-md text-wg-blue hover:bg-blue-50/50 hover:shadow-[0_8px_22px_rgba(47,128,237,0.18)]",
                 };
 
                 return (
@@ -98,14 +96,14 @@ export default function Hero() {
                     href={action.href}
                     whileHover={{ y: -3 }}
                     whileTap={{ scale: 0.98 }}
-                    transition={{ duration: 0.2 }}
-                    className={`group flex min-h-[68px] items-center gap-2.5 rounded-[10px] px-4 py-2.5 transition-shadow duration-300 hover:shadow-lg ${styles[action.variant]}`}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    className={`group flex min-h-[68px] items-center gap-2.5 rounded-[12px] px-4 py-2.5 transition-all duration-300 ${styles[action.variant]}`}
                   >
                     <span
-                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-105 ${
                         action.variant === "outline"
-                          ? "bg-blue-50"
-                          : "bg-white/10"
+                          ? "bg-blue-50/90 text-wg-blue"
+                          : "bg-white/15"
                       }`}
                     >
                       <Icon size={20} strokeWidth={1.8} />
@@ -143,9 +141,40 @@ export default function Hero() {
             }}
             className="relative flex items-center justify-center scale-105 sm:scale-110 lg:scale-115"
           >
-            <div className="absolute h-[290px] w-[290px] rounded-full bg-blue-100/60 sm:h-[360px] sm:w-[360px]" />
+            {/* Luminous Soft Blue/Purple Radial Glow Aura behind the vehicle */}
+            <div
+              className="animate-wg-hero-glow absolute h-[320px] w-[320px] sm:h-[400px] sm:w-[400px] rounded-full blur-3xl pointer-events-none"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(183, 94, 255, 0.22) 0%, rgba(47, 128, 237, 0.20) 45%, transparent 72%)",
+              }}
+            />
 
-            <div className="absolute h-[230px] w-[230px] rounded-full border-[24px] border-blue-50 sm:h-[300px] sm:w-[300px]" />
+            <div
+              className="absolute h-[240px] w-[240px] sm:h-[310px] sm:w-[310px] rounded-full blur-2xl pointer-events-none"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(47, 128, 237, 0.20) 0%, rgba(183, 94, 255, 0.15) 50%, transparent 75%)",
+              }}
+            />
+
+            {/* Soft inner highlight core to elevate the car */}
+            <div
+              className="absolute h-[160px] w-[160px] sm:h-[220px] sm:w-[220px] rounded-full blur-xl pointer-events-none"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(255, 255, 255, 0.70) 0%, rgba(183, 94, 255, 0.12) 60%, transparent 80%)",
+              }}
+            />
+
+            {/* Soft ground shadow elevating the car */}
+            <div
+              className="absolute -bottom-3 h-[24px] w-[340px] sm:w-[440px] rounded-full blur-md pointer-events-none"
+              style={{
+                background:
+                  "radial-gradient(ellipse, rgba(11, 31, 58, 0.16) 0%, rgba(183, 94, 255, 0.08) 40%, transparent 70%)",
+              }}
+            />
 
             <motion.div
               className="relative z-10 w-full max-w-[600px] flex justify-center items-center"
@@ -166,7 +195,7 @@ export default function Hero() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: index === currentCarIndex ? 1 : 0 }}
                   transition={{ duration: 0.8, ease: "easeInOut" }}
-                  className={`w-full object-contain drop-shadow-[0_20px_25px_rgba(11,31,58,0.16)] ${
+                  className={`w-full object-contain drop-shadow-[0_22px_30px_rgba(11,31,58,0.18)] ${
                     index === 0 ? "relative" : "absolute inset-0"
                   }`}
                   style={{
@@ -176,8 +205,8 @@ export default function Hero() {
               ))}
             </motion.div>
 
-            {/* Dots */}
-            <div className="absolute right-0 top-4 grid grid-cols-5 gap-3 opacity-50">
+            {/* Decorative subtle dot matrix */}
+            <div className="absolute right-0 top-4 grid grid-cols-5 gap-3 opacity-40">
               {Array.from({ length: 25 }).map((_, index) => (
                 <span
                   key={index}

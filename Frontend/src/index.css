@@ -7,7 +7,12 @@
   --color-wg-blue: #2F80ED;
   --color-wg-green: #27AE60;
   --color-wg-red: #EB5757;
-  --color-wg-purple: #7C3AED;
+  --color-wg-purple: #B75EFF;
+  --color-wg-purple-10: rgba(183, 94, 255, 0.10);
+  --color-wg-purple-15: rgba(183, 94, 255, 0.15);
+  --color-wg-purple-20: rgba(183, 94, 255, 0.20);
+  --color-wg-purple-30: rgba(183, 94, 255, 0.30);
+  --color-wg-purple-40: rgba(183, 94, 255, 0.40);
   --color-wg-light: #F5F7FA;
   --color-wg-border: #E5E7EB;
   --color-wg-text: #1F2937;
@@ -20,6 +25,16 @@
   background: #ffffff;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  --wg-purple: #B75EFF;
+  --wg-purple-10: rgba(183, 94, 255, 0.10);
+  --wg-purple-15: rgba(183, 94, 255, 0.15);
+  --wg-purple-20: rgba(183, 94, 255, 0.20);
+  --wg-purple-30: rgba(183, 94, 255, 0.30);
+  --wg-purple-40: rgba(183, 94, 255, 0.40);
+  --wg-blue: #2F80ED;
+  --wg-blue-10: rgba(47, 128, 237, 0.10);
+  --wg-blue-15: rgba(47, 128, 237, 0.15);
+  --wg-blue-20: rgba(47, 128, 237, 0.20);
 }
 
 * {
@@ -1365,6 +1380,15 @@ button {
     inset 0 1px 2px rgba(108, 66, 245, 0.05);
 }
 
+.wg-mirror-input:-webkit-autofill,
+.wg-mirror-input:-webkit-autofill:hover,
+.wg-mirror-input:-webkit-autofill:focus,
+.wg-mirror-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.85) inset !important;
+  -webkit-text-fill-color: #0f172a !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 .wg-mirror-social-btn {
   background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(12px);
@@ -1384,3 +1408,203 @@ button {
     0 8px 20px rgba(108, 66, 245, 0.18),
     inset 0 1px 1px rgba(255, 255, 255, 1);
 }
+
+/* =========================================================
+   PREMIUM COLOR ATMOSPHERE & GLASS UTILITIES
+========================================================= */
+
+@keyframes wg-drift-1 {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translate3d(45px, -35px, 0) scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(-35px, 30px, 0) scale(0.95);
+    opacity: 0.8;
+  }
+}
+
+@keyframes wg-drift-2 {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1.06);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate3d(-55px, 40px, 0) scale(0.94);
+    opacity: 0.72;
+  }
+  100% {
+    transform: translate3d(40px, -45px, 0) scale(1.12);
+    opacity: 0.98;
+  }
+}
+
+@keyframes wg-drift-3 {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.96);
+    opacity: 0.75;
+  }
+  50% {
+    transform: translate3d(35px, 45px, 0) scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(-45px, -25px, 0) scale(1.02);
+    opacity: 0.82;
+  }
+}
+
+@keyframes wg-hero-glow-pulse {
+  0% {
+    transform: scale(0.96);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(0.98);
+    opacity: 0.75;
+  }
+}
+
+.animate-wg-drift-1 {
+  animation: wg-drift-1 16s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+
+.animate-wg-drift-2 {
+  animation: wg-drift-2 20s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+
+.animate-wg-drift-3 {
+  animation: wg-drift-3 18s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+
+.animate-wg-hero-glow {
+  animation: wg-hero-glow-pulse 10s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+
+/* Glassmorphism Card System */
+.wg-glass-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 4px 20px -2px rgba(11, 31, 58, 0.03);
+  transition: all 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wg-glass-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0.1) 40%,
+    transparent 100%
+  );
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  pointer-events: none;
+  opacity: 0.6;
+  transition: opacity 500ms ease;
+}
+
+.wg-glass-card:hover::before {
+  opacity: 1;
+}
+
+/* Accent Card Hover Variations */
+.wg-glass-hover-blue:hover {
+  background: rgba(47, 128, 237, 0.08) !important;
+  backdrop-filter: blur(20px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+  border-color: rgba(47, 128, 237, 0.35) !important;
+  box-shadow: 
+    0 16px 36px -8px rgba(47, 128, 237, 0.22),
+    0 0 24px rgba(47, 128, 237, 0.12),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.8) !important;
+  transform: translateY(-4px) scale(1.02);
+}
+
+.wg-glass-hover-green:hover {
+  background: rgba(39, 174, 96, 0.08) !important;
+  backdrop-filter: blur(20px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+  border-color: rgba(39, 174, 96, 0.35) !important;
+  box-shadow: 
+    0 16px 36px -8px rgba(39, 174, 96, 0.22),
+    0 0 24px rgba(39, 174, 96, 0.12),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.8) !important;
+  transform: translateY(-4px) scale(1.02);
+}
+
+.wg-glass-hover-purple:hover {
+  background: rgba(183, 94, 255, 0.09) !important;
+  backdrop-filter: blur(20px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+  border-color: rgba(183, 94, 255, 0.38) !important;
+  box-shadow: 
+    0 16px 36px -8px rgba(183, 94, 255, 0.26),
+    0 0 26px rgba(183, 94, 255, 0.15),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.8) !important;
+  transform: translateY(-4px) scale(1.02);
+}
+
+.wg-glass-hover-navy:hover {
+  background: rgba(11, 31, 58, 0.08) !important;
+  backdrop-filter: blur(20px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+  border-color: rgba(11, 31, 58, 0.35) !important;
+  box-shadow: 
+    0 16px 36px -8px rgba(11, 31, 58, 0.20),
+    0 0 24px rgba(11, 31, 58, 0.10),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.8) !important;
+  transform: translateY(-4px) scale(1.02);
+}
+
+.wg-glass-hover-orange:hover {
+  background: rgba(245, 158, 11, 0.08) !important;
+  backdrop-filter: blur(20px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  box-shadow: 
+    0 16px 36px -8px rgba(245, 158, 11, 0.22),
+    0 0 24px rgba(245, 158, 11, 0.12),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.8) !important;
+  transform: translateY(-4px) scale(1.02);
+}
+
+/* Reduced Motion Optimization */
+@media (prefers-reduced-motion: reduce) {
+  .animate-wg-drift-1,
+  .animate-wg-drift-2,
+  .animate-wg-drift-3,
+  .animate-wg-hero-glow {
+    animation: none !important;
+  }
+  .wg-glass-card,
+  .wg-glass-hover-blue,
+  .wg-glass-hover-green,
+  .wg-glass-hover-purple,
+  .wg-glass-hover-navy,
+  .wg-glass-hover-orange {
+    transition-duration: 0.15s !important;
+    transform: none !important;
+  }
+}
+

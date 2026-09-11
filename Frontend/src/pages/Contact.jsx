@@ -581,8 +581,12 @@ export default function Contact() {
       {/* =================================================================== */}
       {/* 3. MAIN CONTACT GRID: Form (Left) & Get In Touch (Right)             */}
       {/* =================================================================== */}
-      <section className="py-14 sm:py-20" id="contact-form" ref={formRef}>
-        <div className="wg-container">
+      <section className="relative py-14 sm:py-20 overflow-hidden" id="contact-form" ref={formRef}>
+        {/* Subtle surrounding atmospheric glow */}
+        <div className="pointer-events-none absolute top-1/2 left-1/4 -translate-y-1/2 h-[500px] w-[500px] rounded-full bg-[#B75EFF]/10 blur-[150px] -z-10" />
+        <div className="pointer-events-none absolute top-1/3 right-1/4 -translate-y-1/2 h-[450px] w-[450px] rounded-full bg-[#2F80ED]/10 blur-[150px] -z-10" />
+
+        <div className="wg-container relative z-10">
           <div className="grid lg:grid-cols-12 gap-8 items-start">
             
             {/* ------------------------------------------------------------- */}
@@ -595,17 +599,17 @@ export default function Contact() {
     rounded-3xl
     p-6 sm:p-9
 
-    bg-white
+    bg-white/95
+    backdrop-blur-xl
     border border-slate-200/90
-    shadow-sm
+    shadow-[0_8px_30px_rgba(11,31,58,0.03)]
 
     transition-all
     duration-500
     ease-out
 
-    hover:bg-[#B75EFF]/20
     hover:border-[#B75EFF]/40
-    hover:shadow-[0_25px_70px_rgba(183,94,255,0.25)]
+    hover:shadow-[0_20px_50px_rgba(183,94,255,0.15)]
 
     group
   ">

@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, ChevronLeft, AlertCircle } from 'lucide-react';
@@ -177,11 +177,15 @@ export default function Login() {
             )}
 
             {/* Login Form */}
-            <form onSubmit={handleSubmit} className="space-y-3.5">
+            <form onSubmit={handleSubmit} autoComplete="off" className="space-y-3.5">
+              {/* Hidden dummy inputs to prevent aggressive browser autofill */}
+              <input type="text" style={{ display: 'none' }} tabIndex={-1} autoComplete="off" />
+              <input type="password" style={{ display: 'none' }} tabIndex={-1} autoComplete="off" />
+
               {/* Email Address */}
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Mail size={16} stroke="black" strokeWidth={2.5} />
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 z-10">
+                  <Mail size={16} className="text-slate-500" />
                 </div>
                 <input
                   type="email"
@@ -190,15 +194,15 @@ export default function Login() {
                   onChange={handleChange}
                   placeholder="Email address"
                   required
-                  autoComplete="email"
+                  autoComplete="off"
                   className="wg-mirror-input w-full pl-10 pr-4 py-2.5 rounded-xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none"
                 />
               </div>
 
               {/* Password */}
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Lock size={16} stroke="black" strokeWidth={2.5} />
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 z-10">
+                  <Lock size={16} className="text-slate-500" />
                 </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -207,15 +211,15 @@ export default function Login() {
                   onChange={handleChange}
                   placeholder="Password"
                   required
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   className="wg-mirror-input w-full pl-10 pr-10 py-2.5 rounded-xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer z-10"
                 >
-                  {showPassword ? <EyeOff size={16} stroke="black" strokeWidth={2.5} /> : <Eye size={16} stroke="black" strokeWidth={2.5} />}
+                  {showPassword ? <EyeOff size={16} className="text-slate-500" /> : <Eye size={16} className="text-slate-500" />}
                 </button>
               </div>
 
@@ -342,7 +346,7 @@ export default function Login() {
           <div className="relative my-auto py-6 z-10 flex flex-col items-center">
             <motion.img
               key={role}
-              src={role === 'buyer' ? car1Img : carImg}
+              src={role === 'buyer' ? car1 : car}
               alt="WheelGenie Car"
               className="w-full max-w-[280px] drop-shadow-[0_20px_30px_rgba(0,0,0,0.55)] object-contain select-none pointer-events-none"
               initial={{ y: 8, opacity: 0 }}

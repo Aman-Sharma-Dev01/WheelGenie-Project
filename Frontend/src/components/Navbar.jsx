@@ -1,6 +1,6 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, LogOut, User as UserIcon } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/logo.png.png";
 import VehicleHoverButton from "./VehicleHoverButton";
@@ -30,7 +30,7 @@ export default function Navbar({ activePage = "about" }) {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-white/70 bg-white/75 backdrop-blur-xl shadow-[0_4px_30px_rgba(11,31,58,0.025)] transition-all duration-300">
       <div className="wg-container">
         <div className="flex h-[76px] items-center justify-between">
           
@@ -105,7 +105,7 @@ export default function Navbar({ activePage = "about" }) {
                 <VehicleHoverButton
                   href="/login"
                   variant="login"
-                  className="rounded-lg border border-slate-200 px-7 py-3 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-slate-50 hover:text-wg-navy inline-block text-center"
+                  className="rounded-lg border border-slate-200/90 bg-white/70 px-7 py-3 text-sm font-medium text-slate-700 transition-all duration-300 hover:bg-white hover:border-slate-300 hover:text-wg-navy hover:shadow-[0_4px_16px_rgba(11,31,58,0.06)] backdrop-blur-sm inline-block text-center"
                 >
                   Log In
                 </VehicleHoverButton>
@@ -113,7 +113,7 @@ export default function Navbar({ activePage = "about" }) {
                 <VehicleHoverButton
                   href="/signup"
                   variant="signup"
-                  className="rounded-lg bg-wg-blue px-7 py-3 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(47,128,237,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-600 inline-block text-center"
+                  className="rounded-lg bg-wg-blue px-7 py-3 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(47,128,237,0.22)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-blue-600 hover:shadow-[0_12px_28px_rgba(47,128,237,0.36)] inline-block text-center"
                 >
                   Sign Up
                 </VehicleHoverButton>
