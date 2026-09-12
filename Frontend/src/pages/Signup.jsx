@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, User, Phone, Eye, EyeOff, ChevronLeft, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getApiErrorMessage } from '../api/authApi';
-import { GoogleIcon, AppleIcon, MicrosoftIcon } from '../components/common/SocialIcons';
+import { AppleIcon, MicrosoftIcon } from '../components/common/SocialIcons';
+import GoogleSignInButton from '../components/common/GoogleSignInButton';
 import car1 from '../assets/car1.png';
 import car from '../assets/car.png';
 
@@ -347,13 +348,10 @@ export default function Signup() {
               </div>
 
               <div className="grid grid-cols-3 gap-2.5">
-                <button
-                  type="button"
-                  className="wg-mirror-social-btn flex items-center justify-center py-2 px-3 rounded-xl cursor-pointer"
-                  title="Sign up with Google"
-                >
-                  <GoogleIcon className="w-4 h-4" />
-                </button>
+                <GoogleSignInButton
+                  onSuccess={() => navigate(redirectPath, { replace: true })}
+                  onError={(msg) => setError(msg)}
+                />
                 <button
                   type="button"
                   className="wg-mirror-social-btn flex items-center justify-center py-2 px-3 rounded-xl cursor-pointer text-slate-800"

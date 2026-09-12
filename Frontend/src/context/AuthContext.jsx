@@ -1,5 +1,5 @@
 ﻿import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { loginApi, registerApi, getMeApi, logoutApi } from '../api/authApi';
+import { loginApi, registerApi, googleLoginApi, getMeApi, logoutApi } from '../api/authApi';
 
 const AuthContext = createContext(null);
 
@@ -92,6 +92,19 @@ export function AuthProvider({ children }) {
     return { user: newUser, token: accessToken };
   }, []);
 
+  // Google login / signup handler
+  const googleLogin = useCallback(async (credential) => {
+    const data = await googleLoginApi(credential);
+    const { user: userData, accessToken } = data.data;
+
+    setToken(accessToken);
+    setUser(userData);
+    localStorage.setItem('wg_token', accessToken);
+    localStorage.setItem('wg_user', JSON.stringify(userData));
+
+    return { user: userData, token: accessToken };
+  }, []);
+
   // Logout handler
   const logout = useCallback(async () => {
     try {
@@ -111,6 +124,7 @@ export function AuthProvider({ children }) {
     isAuthenticated: Boolean(token && user),
     login,
     signup,
+    googleLogin,
     logout,
     setUser,
   };
