@@ -4,7 +4,7 @@ import { features } from "../data/homeData";
 
 export default function CoreFeatures() {
   return (
-    <section className="bg-white py-10 sm:py-12">
+    <section className="relative py-12 sm:py-16">
       <div className="wg-container">
         
         <motion.div

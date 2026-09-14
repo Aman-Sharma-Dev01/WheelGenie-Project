@@ -19,6 +19,15 @@ export const registerApi = async (userData) => {
 };
 
 /**
+ * Log in / sign up with a Google ID token (credential from Google Identity Services)
+ * @param {string} credential - Google ID token JWT
+ */
+export const googleLoginApi = async (credential) => {
+  const response = await api.post('/auth/google-login', { token: credential });
+  return response.data;
+};
+
+/**
  * Get current authenticated user profile
  */
 export const getMeApi = async () => {

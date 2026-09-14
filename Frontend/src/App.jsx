@@ -46,6 +46,10 @@ export default function App() {
               element={<Sell />}
             />
 
+{/* <<<<<<< HEAD
+=======
+            
+>>>>>>> d918f1745b54289e5907b2ea07e226acd2e998cc */}
 
             <Route
               path="/about"

@@ -587,7 +587,7 @@ export default function AICalculator() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-3xl font-extrabold tracking-tight text-[#0B1F3A] sm:text-4xl">
+          <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-[#0B1F3A] sm:text-4xl">
             AI Car Value Calculator
           </h1>
           <p className="mt-2 text-sm text-slate-500 sm:text-base">

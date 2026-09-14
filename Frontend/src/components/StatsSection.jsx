@@ -65,14 +65,17 @@ function Counter({ value }) {
 
 export default function StatsSection() {
   return (
-    <section className="pb-10">
-      <div className="wg-container">
+    <section className="relative pb-12 pt-2">
+      <div className="wg-container relative">
+        {/* Soft ambient glow behind stats container */}
+        <div className="pointer-events-none absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#2F80ED]/15 via-[#B75EFF]/12 to-[#27AE60]/10 blur-xl opacity-75" />
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="grid overflow-hidden rounded-xl border border-white/10 bg-[#041527] shadow-[0_4px_20px_rgba(11,31,58,0.03)] sm:grid-cols-2 lg:grid-cols-4"
+          className="relative z-10 grid overflow-hidden rounded-2xl border border-white/15 bg-[#041527] shadow-[0_20px_50px_rgba(4,21,39,0.15)] sm:grid-cols-2 lg:grid-cols-4"
         >
           {stats.map((stat, index) => {
             const Icon = stat.icon;
