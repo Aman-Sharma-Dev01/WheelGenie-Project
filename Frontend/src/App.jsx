@@ -46,10 +46,6 @@ export default function App() {
               element={<Sell />}
             />
 
-            <Route
-              path="/calculator"
-              element={<Placeholder title="AI Calculator" pageKey="calculator" />}
-            />
 
             <Route
               path="/about"

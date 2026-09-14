@@ -574,7 +574,7 @@ export default function AICalculator() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/40">
+    <div className="min-h-screen bg-[#F8FAFD] text-[#0B1F3A]">
       {/* ---------------- Top Nav ---------------- */}
       <div className="sticky top-0 z-50">
         <Navbar activePage="calculator" />
@@ -587,10 +587,10 @@ export default function AICalculator() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-[32px]">
+          <h1 className="text-3xl font-extrabold tracking-tight text-[#0B1F3A] sm:text-4xl">
             AI Car Value Calculator
           </h1>
-          <p className="mt-1.5 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-slate-500 sm:text-base">
             Get an instant, accurate estimate of your car's value using AI.
           </p>
         </motion.div>
