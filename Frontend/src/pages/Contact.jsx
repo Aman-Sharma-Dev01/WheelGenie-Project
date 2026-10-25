@@ -372,7 +372,7 @@ export default function Contact() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.15 }}
-              className="lg:col-span-6 xl:col-span-5 relative"
+              className="lg:col-span-6 xl:col-span-5 relative flex items-center justify-center"
             >
               <AnimatedCarShowcase />
             </motion.div>

@@ -1,22 +1,56 @@
 import { useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { MapPin, ChevronDown, Loader2 } from "lucide-react";
+import { useUserLocation } from "../context/LocationContext";
+import LocationPermission from "../components/common/LocationPermission";
 
 import SellProgress from "../components/sell/SellProgress";
 import CarDetailsForm from "../components/sell/CarDetailsForm";
 import SellPriceSidebar from "../components/sell/SellPriceSidebar";
 import SellBenefits from "../components/sell/SellBenefits";
+import useSellCarForm from "../hooks/useSellCarForm";
 
 const Sell = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
 
-  const handleContinue = () => {
+  const { city, isLocating } = useUserLocation();
+
+  const handleStepAdvance = () => {
     setCurrentStep((prev) => Math.min(prev + 1, 5));
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  const {
+    formData,
+    formErrors,
+    makes,
+    loadingMakes,
+    makesError,
+    models,
+    loadingModels,
+    modelsError,
+    variants,
+    loadingVariants,
+    variantsError,
+    valuation,
+    valuationLoading,
+    valuationError,
+    saveStatus,
+    setMake,
+    setModel,
+    setVariant,
+    updateField,
+    searchMakes,
+    searchModels,
+    handleSaveAndContinue,
+    handleSaveAndExit,
+  } = useSellCarForm(handleStepAdvance);
 
   return (
     <div className="min-h-screen bg-[#F8FAFD] text-[#0B1F3A]">
-      <Navbar />
+      <Navbar activePage="sell" />
 
       <main>
         {/* PAGE HEADER */}
@@ -32,21 +66,44 @@ const Sell = () => {
               </p>
             </div>
 
-            {/* LOCATION */}
-            <div className="flex w-fit items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-[#247CF0]">
-                📍
-              </div>
+            {/* LOCATION BADGE / MODAL TRIGGER */}
+            <div>
+              <button
+                type="button"
+                onClick={() => setIsLocationModalOpen(true)}
+                className="group flex w-fit items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm transition hover:border-[#247CF0] hover:shadow-md cursor-pointer text-left"
+                title="Click to view and change your location"
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[#247CF0] group-hover:bg-blue-100 transition-colors">
+                  {isLocating ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <MapPin className="h-4 w-4" />
+                  )}
+                </div>
 
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                  Your Location
-                </p>
+                <div className="min-w-[120px]">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                    Your Location
+                  </p>
 
-                <p className="text-sm font-bold text-[#0B1F3A]">
-                  Detecting location...
-                </p>
-              </div>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-sm font-bold text-[#0B1F3A] truncate max-w-[130px]">
+                      {isLocating ? "Detecting..." : city || "Select City"}
+                    </p>
+                    <ChevronDown
+                      size={14}
+                      className="text-slate-400 group-hover:text-[#247CF0] transition-colors"
+                    />
+                  </div>
+                </div>
+              </button>
+
+              {/* Location Permission & City Selector Modal */}
+              <LocationPermission
+                isOpen={isLocationModalOpen}
+                onClose={() => setIsLocationModalOpen(false)}
+              />
             </div>
           </div>
         </section>
@@ -59,9 +116,83 @@ const Sell = () => {
         {/* MAIN CONTENT */}
         <section className="mx-auto w-full max-w-[1440px] px-5 py-5 sm:px-8 lg:px-12 lg:py-6">
           <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,2.15fr)_minmax(340px,0.95fr)]">
-            <CarDetailsForm onContinue={handleContinue} />
+            {currentStep === 1 ? (
+              <CarDetailsForm
+                formData={formData}
+                formErrors={formErrors}
+                makes={makes}
+                loadingMakes={loadingMakes}
+                makesError={makesError}
+                models={models}
+                loadingModels={loadingModels}
+                modelsError={modelsError}
+                variants={variants}
+                loadingVariants={loadingVariants}
+                variantsError={variantsError}
+                saveStatus={saveStatus}
+                setMake={setMake}
+                setModel={setModel}
+                setVariant={setVariant}
+                updateField={updateField}
+                searchMakes={searchMakes}
+                searchModels={searchModels}
+                onSaveContinue={handleSaveAndContinue}
+                onSaveExit={handleSaveAndExit}
+              />
+            ) : (
+              <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm flex flex-col items-center justify-center min-h-[400px] text-center">
+                <div className="h-16 w-16 rounded-full bg-blue-50 text-[#247CF0] flex items-center justify-center text-2xl font-bold mb-4">
+                  {currentStep}
+                </div>
+                <h3 className="text-xl font-bold text-[#0B1F3A]">
+                  {currentStep === 2 && "Step 2: Upload Photos"}
+                  {currentStep === 3 && "Step 3: Pricing & Valuation"}
+                  {currentStep === 4 && "Step 4: Contact Details"}
+                  {currentStep === 5 && "Step 5: Review & Publish"}
+                </h3>
+                <p className="mt-2 text-sm text-slate-500 max-w-md">
+                  Vehicle details for{" "}
+                  <span className="font-semibold text-slate-700">
+                    {[formData?.make?.name, formData?.model?.name, formData?.variant?.name]
+                      .filter(Boolean)
+                      .join(" ") || "your car"}
+                  </span>{" "}
+                  have been saved in your draft.
+                </p>
+                <div className="mt-6 flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCurrentStep(1);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+                  >
+                    ← Back to Car Details
+                  </button>
+                  {currentStep < 5 && (
+                    <button
+                      type="button"
+                      onClick={handleStepAdvance}
+                      className="rounded-xl bg-[#247CF0] px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-600 transition cursor-pointer"
+                    >
+                      Next Step →
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
 
-            <SellPriceSidebar />
+            <SellPriceSidebar
+              formData={formData}
+              valuation={valuation}
+              valuationLoading={valuationLoading}
+              valuationError={valuationError}
+              onEdit={() => {
+                setCurrentStep(1);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            />
           </div>
         </section>
 

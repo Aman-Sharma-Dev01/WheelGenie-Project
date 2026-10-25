@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, ChevronLeft, AlertCircle } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ChevronLeft, AlertCircle, Info } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getApiErrorMessage } from '../api/authApi';
 import { GoogleIcon, AppleIcon, MicrosoftIcon } from '../components/common/SocialIcons';
@@ -163,6 +163,18 @@ export default function Login() {
                 </p>
               </motion.div>
             </AnimatePresence>
+
+            {/* Information Banner (e.g. Mandatory Login for Buy Cars) */}
+            {location.state?.message && !error && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 p-3 rounded-xl bg-blue-50/95 border border-blue-200/90 backdrop-blur-md flex items-center gap-2.5 text-blue-700 text-xs font-semibold shadow-sm"
+              >
+                <Info size={16} className="shrink-0 text-blue-600" />
+                <span>{location.state.message}</span>
+              </motion.div>
+            )}
 
             {/* Error Message */}
             {error && (

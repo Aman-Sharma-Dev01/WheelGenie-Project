@@ -1,12 +1,4 @@
 
-/**
- * AmbientBackground
- * Provides an elegant, luminous color atmosphere behind the WheelGenie page:
- * - White/light base with low-opacity, heavily blurred color orbs.
- * - Primary purple accent #B75EFF + WheelGenie blue + soft cyan + subtle green/orange.
- * - Ambient 10-20s slow drift animations via GPU-accelerated CSS keyframes.
- * - Overlaps section boundaries for seamless, continuous visual flow.
- */
 export default function AmbientBackground() {
   return (
     <div
