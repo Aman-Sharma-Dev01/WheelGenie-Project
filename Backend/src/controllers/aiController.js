@@ -5,6 +5,9 @@ import AppError from '../utils/appError.js';
 import catchAsync from '../utils/catchAsync.js';
 
 const WIKIPEDIA_API_URL = 'https://en.wikipedia.org/w/api.php';
+const processedImageCache = new Map();
+const processingImages = new Map();
+const IMAGE_PROCESSING_TIMEOUT_MS = 20000;
 
 // Fetch the representative car image and remove its background on the server.
 export const getCarImage = catchAsync(async (req, res, next) => {
@@ -56,15 +59,53 @@ export const getCarImage = catchAsync(async (req, res, next) => {
   const sourceBlob = new Blob([sourceBuffer], {
     type: sourceResponse.headers.get('content-type') || 'image/jpeg'
   });
+
+  const cacheKey = `${make.toLowerCase()}:${model.toLowerCase()}`;
+  const cachedImage = processedImageCache.get(cacheKey);
+  if (cachedImage) {
+    res.set({
+      'Content-Type': 'image/png',
+      'Cache-Control': 'public, max-age=86400',
+      'X-Image-Processing': 'processed-cache'
+    });
+    return res.send(cachedImage);
+  }
+
   let processedBlob;
   try {
-    processedBlob = await removeBackground(sourceBlob, {
-      model: 'small',
-      output: { format: 'image/png', quality: 0.8 }
-    });
+    let processingPromise = processingImages.get(cacheKey);
+    if (!processingPromise) {
+      processingPromise = removeBackground(sourceBlob, {
+        model: 'small',
+        output: { format: 'image/png', quality: 0.8 }
+      });
+      processingImages.set(cacheKey, processingPromise);
+      processingPromise
+        .then(async (blob) => {
+          processedImageCache.set(cacheKey, Buffer.from(await blob.arrayBuffer()));
+        })
+        .catch((error) => {
+          console.error('Car image background removal failed:', error);
+        })
+        .finally(() => processingImages.delete(cacheKey));
+    }
+
+    processedBlob = await Promise.race([
+      processingPromise,
+      new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Image processing timed out')), IMAGE_PROCESSING_TIMEOUT_MS);
+      })
+    ]);
   } catch (error) {
     console.error('Car image background removal failed:', error);
-    return next(new AppError('Car image processing failed.', 502));
+    // Keep the image preview usable when the first model download or a
+    // resource-limited deployment cannot complete background removal.
+    res.set({
+      'Content-Type': sourceResponse.headers.get('content-type') || 'image/jpeg',
+      'Cache-Control': 'public, max-age=3600',
+      'X-Image-Processing': 'fallback'
+    });
+    return res.send(sourceBuffer);
   }
   const processedBuffer = Buffer.from(await processedBlob.arrayBuffer());
 
