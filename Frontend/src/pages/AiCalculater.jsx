@@ -503,7 +503,7 @@ export default function AICalculator() {
     };
 
     try {
-      const res = await fetch(`${API_URL}/api/v1/predict-buyback`, {
+      const res = await fetch(`${API_URL}/predict-buyback`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
