@@ -841,16 +841,11 @@ export default function AICalculator() {
                 )}
               </div>
 
-              {/* Right side: AI badge above a compact car photo, matching
-                  the reference layout. No animation; a soft edge-mask keeps
+              {/* Right side: compact car photo. No animation; a soft edge-mask keeps
                   the photo's own background from showing as a hard
                   rectangle. Full-width and shorter on mobile, fixed compact
                   size from the sm breakpoint up. */}
-              <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
-                <span className="flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-600">
-                  <Sparkles size={10} /> AI Powered
-                </span>
-
+              <div className="flex shrink-0 flex-col items-start sm:items-end">
                 <div
                   className={`relative h-[150px] w-full overflow-hidden rounded-xl sm:h-[135px] sm:w-[275px] ${
                     carImageUrl && !imageFailed && imageLoaded
