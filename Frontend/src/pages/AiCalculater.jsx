@@ -138,9 +138,6 @@ const CITY_SUGGESTIONS = Object.keys(CITY_RTO_MAP);
 const AI_API_URL =
   (typeof import.meta !== "undefined" && import.meta.env?.VITE_AI_API_URL) ||
   "http://localhost:8000/api/v1";
-const BACKEND_API_URL =
-  (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL) ||
-  "http://localhost:5000/api/v1";
 
 function formatINR(n) {
   return "₹ " + Math.round(n).toLocaleString("en-IN");
@@ -336,7 +333,7 @@ export default function AICalculator() {
   const [processedUrl, setProcessedUrl] = useState("");
   const [bgRemoving, setBgRemoving] = useState(false);
 
-  // The backend fetches the source image and performs background removal.
+  // Fetch the Wikipedia thumbnail and remove its background in the browser.
   useEffect(() => {
     setImageLoaded(false);
     setImageFailed(false);
@@ -349,26 +346,44 @@ export default function AICalculator() {
     if (!make.trim() || !model.trim()) return;
 
     let cancelled = false;
-    const controller = new AbortController();
     (async () => {
       setBgRemoving(true);
+      let sourceUrl = null;
       try {
         const res = await fetch(
-          `${BACKEND_API_URL}/ai/car-image?${new URLSearchParams({
-            make: make.trim(),
-            model: model.trim(),
-          })}`,
-          { signal: controller.signal }
+          `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(
+            `${make} ${model} car`.trim()
+          )}&gsrlimit=1&prop=pageimages&piprop=thumbnail&pithumbsize=420&format=json&origin=*`
         );
-        if (!res.ok) throw new Error(`Image server responded ${res.status}`);
-        const blob = await res.blob();
+        const data = await res.json();
+        const pages = data?.query?.pages;
+        sourceUrl = pages ? Object.values(pages)[0]?.thumbnail?.source : null;
+      } catch (err) {
+        console.error("Wikipedia photo lookup failed:", err);
+      }
+
+      if (cancelled || !sourceUrl) {
+        if (!cancelled) {
+          setImageFailed(true);
+          setBgRemoving(false);
+        }
+        return;
+      }
+
+      try {
+        const { removeBackground } = await import("@imgly/background-removal");
+        const blob = await removeBackground(sourceUrl, {
+          model: "small",
+          output: { format: "image/png", quality: 0.8 },
+        });
         if (cancelled) return;
         setProcessedUrl(URL.createObjectURL(blob));
       } catch (err) {
-        if (!cancelled && err.name !== "AbortError") {
-          console.error("Backend car image request failed:", err);
-          setImageFailed(true);
-        }
+        console.error(
+          "Background removal failed — showing the plain photo instead:",
+          err
+        );
+        if (!cancelled) setProcessedUrl(sourceUrl);
       } finally {
         if (!cancelled) setBgRemoving(false);
       }
@@ -376,7 +391,6 @@ export default function AICalculator() {
 
     return () => {
       cancelled = true;
-      controller.abort();
     };
   }, [make, model]);
 

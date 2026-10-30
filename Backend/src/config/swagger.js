@@ -346,20 +346,6 @@ const options = {
       },
 
       // ─── AI EVALUATION ──────────────────────────
-      '/api/v1/ai/car-image': {
-        get: {
-          tags: ['AI Evaluation'],
-          summary: 'Fetch a car image with its background removed',
-          parameters: [
-            { name: 'make', in: 'query', required: true, schema: { type: 'string' } },
-            { name: 'model', in: 'query', required: true, schema: { type: 'string' } }
-          ],
-          responses: {
-            200: { description: 'Processed PNG image' },
-            404: { description: 'No image found for the car' }
-          }
-        }
-      },
       '/api/v1/ai/evaluate': {
         post: {
           tags: ['AI Evaluation'],
