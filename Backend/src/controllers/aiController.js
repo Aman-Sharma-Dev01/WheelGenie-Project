@@ -29,10 +29,16 @@ export const getCarImage = catchAsync(async (req, res, next) => {
     format: 'json'
   });
 
-  const lookupResponse = await fetch(`${WIKIPEDIA_API_URL}?${searchParams}`, {
-    signal: AbortSignal.timeout(10000),
-    headers: { 'User-Agent': 'WheelGenie/1.0 (car image lookup)' }
-  });
+  let lookupResponse;
+  try {
+    lookupResponse = await fetch(`${WIKIPEDIA_API_URL}?${searchParams}`, {
+      signal: AbortSignal.timeout(10000),
+      headers: { 'User-Agent': 'WheelGenie/1.0 (car image lookup)' }
+    });
+  } catch (error) {
+    console.error('Car image lookup request failed:', error);
+    return next(new AppError('Car image provider is unavailable.', 502));
+  }
 
   if (!lookupResponse.ok) {
     return next(new AppError('Car image lookup failed.', 502));
@@ -46,12 +52,19 @@ export const getCarImage = catchAsync(async (req, res, next) => {
     return next(new AppError('No image found for this car.', 404));
   }
 
-  const sourceResponse = await fetch(sourceUrl, {
-    signal: AbortSignal.timeout(15000),
-    headers: { 'User-Agent': 'WheelGenie/1.0 (car image fetch)' }
-  });
+  let sourceResponse;
+  try {
+    sourceResponse = await fetch(sourceUrl, {
+      signal: AbortSignal.timeout(15000),
+      headers: { 'User-Agent': 'WheelGenie/1.0 (car image fetch)' }
+    });
+  } catch (error) {
+    console.error('Car image source request failed:', error);
+    return next(new AppError('Car image provider is unavailable.', 502));
+  }
 
   if (!sourceResponse.ok) {
+    console.error('Car image source returned:', sourceResponse.status, sourceUrl);
     return next(new AppError('Car image fetch failed.', 502));
   }
 
