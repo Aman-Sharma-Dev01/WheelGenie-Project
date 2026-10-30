@@ -5,9 +5,21 @@ import AppError from '../utils/appError.js';
 import catchAsync from '../utils/catchAsync.js';
 
 const WIKIPEDIA_API_URL = 'https://en.wikipedia.org/w/api.php';
+const OPENVERSE_API_URL = 'https://api.openverse.org/v1/images/';
 const processedImageCache = new Map();
 const processingImages = new Map();
 const IMAGE_PROCESSING_TIMEOUT_MS = 20000;
+const MAX_CACHED_IMAGES = 3;
+
+const cacheProcessedImage = (key, buffer) => {
+  processedImageCache.delete(key);
+  processedImageCache.set(key, buffer);
+
+  while (processedImageCache.size > MAX_CACHED_IMAGES) {
+    const oldestKey = processedImageCache.keys().next().value;
+    processedImageCache.delete(oldestKey);
+  }
+};
 
 // Fetch the representative car image and remove its background on the server.
 export const getCarImage = catchAsync(async (req, res, next) => {
@@ -29,24 +41,45 @@ export const getCarImage = catchAsync(async (req, res, next) => {
     format: 'json'
   });
 
-  let lookupResponse;
+  let sourceUrl;
   try {
-    lookupResponse = await fetch(`${WIKIPEDIA_API_URL}?${searchParams}`, {
+    const lookupResponse = await fetch(`${WIKIPEDIA_API_URL}?${searchParams}`, {
       signal: AbortSignal.timeout(10000),
-      headers: { 'User-Agent': 'WheelGenie/1.0 (car image lookup)' }
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'WheelGenie/1.0 (car image lookup; contact: support@wheelgenie.com)'
+      }
     });
+    if (lookupResponse.ok) {
+      const lookupData = await lookupResponse.json();
+      const pages = lookupData?.query?.pages;
+      sourceUrl = pages ? Object.values(pages)[0]?.thumbnail?.source : null;
+    } else {
+      console.error('Wikipedia image lookup returned:', lookupResponse.status);
+    }
   } catch (error) {
-    console.error('Car image lookup request failed:', error);
-    return next(new AppError('Car image provider is unavailable.', 502));
+    console.error('Wikipedia image lookup request failed:', error.message);
   }
 
-  if (!lookupResponse.ok) {
-    return next(new AppError('Car image lookup failed.', 502));
+  if (!sourceUrl) {
+    try {
+      const fallbackResponse = await fetch(
+        `${OPENVERSE_API_URL}?q=${encodeURIComponent(`${make} ${model} car`)}&page_size=1`,
+        {
+          signal: AbortSignal.timeout(10000),
+          headers: { Accept: 'application/json' }
+        }
+      );
+      if (fallbackResponse.ok) {
+        const fallbackData = await fallbackResponse.json();
+        sourceUrl = fallbackData?.results?.[0]?.thumbnail || fallbackData?.results?.[0]?.url;
+      } else {
+        console.error('Openverse image lookup returned:', fallbackResponse.status);
+      }
+    } catch (error) {
+      console.error('Openverse image lookup request failed:', error.message);
+    }
   }
-
-  const lookupData = await lookupResponse.json();
-  const pages = lookupData?.query?.pages;
-  const sourceUrl = pages ? Object.values(pages)[0]?.thumbnail?.source : null;
 
   if (!sourceUrl) {
     return next(new AppError('No image found for this car.', 404));
@@ -65,7 +98,7 @@ export const getCarImage = catchAsync(async (req, res, next) => {
 
   if (!sourceResponse.ok) {
     console.error('Car image source returned:', sourceResponse.status, sourceUrl);
-    return next(new AppError('Car image fetch failed.', 502));
+    return next(new AppError('No usable image found for this car.', 404));
   }
 
   const sourceBuffer = Buffer.from(await sourceResponse.arrayBuffer());
@@ -95,7 +128,7 @@ export const getCarImage = catchAsync(async (req, res, next) => {
       processingImages.set(cacheKey, processingPromise);
       processingPromise
         .then(async (blob) => {
-          processedImageCache.set(cacheKey, Buffer.from(await blob.arrayBuffer()));
+          cacheProcessedImage(cacheKey, Buffer.from(await blob.arrayBuffer()));
         })
         .catch((error) => {
           console.error('Car image background removal failed:', error);
