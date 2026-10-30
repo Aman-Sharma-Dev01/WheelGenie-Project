@@ -56,10 +56,16 @@ export const getCarImage = catchAsync(async (req, res, next) => {
   const sourceBlob = new Blob([sourceBuffer], {
     type: sourceResponse.headers.get('content-type') || 'image/jpeg'
   });
-  const processedBlob = await removeBackground(sourceBlob, {
-    model: 'small',
-    output: { format: 'image/png', quality: 0.8 }
-  });
+  let processedBlob;
+  try {
+    processedBlob = await removeBackground(sourceBlob, {
+      model: 'small',
+      output: { format: 'image/png', quality: 0.8 }
+    });
+  } catch (error) {
+    console.error('Car image background removal failed:', error);
+    return next(new AppError('Car image processing failed.', 502));
+  }
   const processedBuffer = Buffer.from(await processedBlob.arrayBuffer());
 
   res.set({

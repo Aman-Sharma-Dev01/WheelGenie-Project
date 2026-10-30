@@ -44,12 +44,24 @@ import { setupSwagger } from './config/swagger.js';
 const app = express();
 
 // Global Middlewares
-const allowedOrigins = process.env.FRONTEND_URL
-  ? process.env.FRONTEND_URL.split(',').map((origin) => origin.trim())
-  : true;
+const configuredOrigins = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL
+    .split(',')
+    .map((origin) => origin.trim().replace(/\/+$/, ''))
+    .filter(Boolean)
+  : [];
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: configuredOrigins.length
+    ? (origin, callback) => {
+      // Requests without an Origin header are allowed for health checks and
+      // server-to-server calls.
+      if (!origin || configuredOrigins.includes(origin.replace(/\/+$/, ''))) {
+        return callback(null, true);
+      }
+      return callback(new AppError('Origin is not allowed by CORS.', 403));
+    }
+    : true,
   credentials: true
 }));
 app.use(cookieParser());
