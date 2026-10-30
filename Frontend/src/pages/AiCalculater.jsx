@@ -134,11 +134,13 @@ const CITY_RTO_MAP = {
 };
 const CITY_SUGGESTIONS = Object.keys(CITY_RTO_MAP);
 
-// Base URL of your FastAPI backend (main.py). Override with VITE_API_URL in
-// a .env file for production deployments.
-const API_URL =
+// The valuation calculator uses the separate FastAPI service.
+const AI_API_URL =
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_AI_API_URL) ||
+  "http://localhost:8000/api/v1";
+const BACKEND_API_URL =
   (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL) ||
-  "http://localhost:8000";
+  "http://localhost:5000/api/v1";
 
 function formatINR(n) {
   return "₹ " + Math.round(n).toLocaleString("en-IN");
@@ -331,28 +333,10 @@ export default function AICalculator() {
 
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
-  const [processedUrl, setProcessedUrl] = useState(""); // background-removed blob URL
-  const [bgRemoving, setBgRemoving] = useState(false); // true while the background-removal pass runs in the background
+  const [processedUrl, setProcessedUrl] = useState("");
+  const [bgRemoving, setBgRemoving] = useState(false);
 
-  // ---- Car photo pipeline: Wikipedia photo + free client-side background
-  // removal (@imgly/background-removal) --------------------------------
-  // Two stages, so a failure in stage 2 never hides a photo we already
-  // have:
-  //   1) Fetch the Wikipedia thumbnail and show it immediately — this is
-  //      the part that must not fail silently.
-  //   2) In the background, try to strip the background out of that same
-  //      photo. If it succeeds, swap in the transparent version. If it
-  //      fails for any reason (offline model download, WASM not
-  //      supported, etc.), we just keep showing the plain photo from
-  //      step 1 instead of falling back to the placeholder illustration.
-  //
-  // Fully free and keyless, and — unlike IMAGIN.studio's demo/shared key —
-  // never watermarked. Trade-off: Wikipedia has one representative photo
-  // per model generation (not per exact model-year), so this isn't
-  // year-exact the way a paid car-imagery API would be.
-  //
-  // Requires: npm install @imgly/background-removal   (in your Frontend
-  // folder).
+  // The backend fetches the source image and performs background removal.
   useEffect(() => {
     setImageLoaded(false);
     setImageFailed(false);
@@ -365,53 +349,26 @@ export default function AICalculator() {
     if (!make.trim() || !model.trim()) return;
 
     let cancelled = false;
+    const controller = new AbortController();
     (async () => {
-      // Stage 1: find a source photo (not shown to the user yet — we
-      // don't want the "with background" version flashing on screen).
-      let sourceUrl = null;
-      try {
-        const searchTerm = `${make} ${model} car`.trim();
-        const res = await fetch(
-          `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(
-            searchTerm
-          )}&gsrlimit=1&prop=pageimages&piprop=thumbnail&pithumbsize=420&format=json&origin=*`
-        );
-        const data = await res.json();
-        const pages = data?.query?.pages;
-        sourceUrl = pages ? Object.values(pages)[0]?.thumbnail?.source : null;
-      } catch (err) {
-        console.error("Wikipedia photo lookup failed:", err);
-      }
-
-      if (cancelled) return;
-      if (!sourceUrl) {
-        setImageFailed(true);
-        return;
-      }
-
-      // Stage 2: background removal. The rotating-car loader shows the
-      // whole time this runs, so only the final (background-removed)
-      // photo is ever revealed. If removal fails for any reason, we fall
-      // back to the plain photo rather than showing nothing.
-      //
-      // model: "small" trades a little edge-quality for noticeably faster
-      // processing — worth it here since this runs on every car selection,
-      // not once per product photo like a typical e-commerce use case.
       setBgRemoving(true);
       try {
-        const { removeBackground } = await import("@imgly/background-removal");
-        const blob = await removeBackground(sourceUrl, {
-          model: "small",
-          output: { format: "image/png", quality: 0.8 },
-        });
+        const res = await fetch(
+          `${BACKEND_API_URL}/ai/car-image?${new URLSearchParams({
+            make: make.trim(),
+            model: model.trim(),
+          })}`,
+          { signal: controller.signal }
+        );
+        if (!res.ok) throw new Error(`Image server responded ${res.status}`);
+        const blob = await res.blob();
         if (cancelled) return;
         setProcessedUrl(URL.createObjectURL(blob));
       } catch (err) {
-        console.error(
-          "Background removal failed — showing the plain photo instead:",
-          err
-        );
-        if (!cancelled) setProcessedUrl(sourceUrl);
+        if (!cancelled && err.name !== "AbortError") {
+          console.error("Backend car image request failed:", err);
+          setImageFailed(true);
+        }
       } finally {
         if (!cancelled) setBgRemoving(false);
       }
@@ -419,6 +376,7 @@ export default function AICalculator() {
 
     return () => {
       cancelled = true;
+      controller.abort();
     };
   }, [make, model]);
 
@@ -503,7 +461,7 @@ export default function AICalculator() {
     };
 
     try {
-      const res = await fetch(`${API_URL}/predict-buyback`, {
+      const res = await fetch(`${AI_API_URL}/predict-buyback`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -518,7 +476,7 @@ export default function AICalculator() {
       setCalculated(true);
     } catch (err) {
       setApiError(
-        `Couldn't reach the valuation server (${err.message}). Is main.py running on ${API_URL}?`
+        `Couldn't reach the valuation server (${err.message}). Is main.py running on ${AI_API_URL}?`
       );
       setStep(1);
     } finally {
@@ -911,7 +869,7 @@ export default function AICalculator() {
                         <Car size={22} />
                       </motion.div>
                       <span className="text-[10px] font-medium text-slate-400">
-                        Finding photo…
+                        {bgRemoving ? "Processing photo…" : "Finding photo…"}
                       </span>
                     </div>
                   )}

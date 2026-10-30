@@ -1,7 +1,73 @@
 import AIEvaluation from '../models/AIEvaluation.js';
+import { removeBackground } from '@imgly/background-removal-node';
 import { evaluateWithGemini } from '../ai/geminiService.js';
 import AppError from '../utils/appError.js';
 import catchAsync from '../utils/catchAsync.js';
+
+const WIKIPEDIA_API_URL = 'https://en.wikipedia.org/w/api.php';
+
+// Fetch the representative car image and remove its background on the server.
+export const getCarImage = catchAsync(async (req, res, next) => {
+  const make = req.query.make?.trim();
+  const model = req.query.model?.trim();
+
+  if (!make || !model || make.length > 100 || model.length > 100) {
+    return next(new AppError('A valid car make and model are required.', 400));
+  }
+
+  const searchParams = new URLSearchParams({
+    action: 'query',
+    generator: 'search',
+    gsrsearch: `${make} ${model} car`,
+    gsrlimit: '1',
+    prop: 'pageimages',
+    piprop: 'thumbnail',
+    pithumbsize: '420',
+    format: 'json'
+  });
+
+  const lookupResponse = await fetch(`${WIKIPEDIA_API_URL}?${searchParams}`, {
+    signal: AbortSignal.timeout(10000),
+    headers: { 'User-Agent': 'WheelGenie/1.0 (car image lookup)' }
+  });
+
+  if (!lookupResponse.ok) {
+    return next(new AppError('Car image lookup failed.', 502));
+  }
+
+  const lookupData = await lookupResponse.json();
+  const pages = lookupData?.query?.pages;
+  const sourceUrl = pages ? Object.values(pages)[0]?.thumbnail?.source : null;
+
+  if (!sourceUrl) {
+    return next(new AppError('No image found for this car.', 404));
+  }
+
+  const sourceResponse = await fetch(sourceUrl, {
+    signal: AbortSignal.timeout(15000),
+    headers: { 'User-Agent': 'WheelGenie/1.0 (car image fetch)' }
+  });
+
+  if (!sourceResponse.ok) {
+    return next(new AppError('Car image fetch failed.', 502));
+  }
+
+  const sourceBuffer = Buffer.from(await sourceResponse.arrayBuffer());
+  const sourceBlob = new Blob([sourceBuffer], {
+    type: sourceResponse.headers.get('content-type') || 'image/jpeg'
+  });
+  const processedBlob = await removeBackground(sourceBlob, {
+    model: 'small',
+    output: { format: 'image/png', quality: 0.8 }
+  });
+  const processedBuffer = Buffer.from(await processedBlob.arrayBuffer());
+
+  res.set({
+    'Content-Type': 'image/png',
+    'Cache-Control': 'public, max-age=86400'
+  });
+  res.send(processedBuffer);
+});
 
 // 1. EVALUATE VEHICLE (Protected)
 export const evaluateVehicle = catchAsync(async (req, res, next) => {

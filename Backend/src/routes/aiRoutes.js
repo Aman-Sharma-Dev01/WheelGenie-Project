@@ -6,6 +6,9 @@ import { evaluateVehicleSchema } from '../validators/aiValidator.js';
 
 const router = express.Router();
 
+// Image previews are available while filling the public calculator form.
+router.get('/car-image', aiController.getCarImage);
+
 // All AI routes are protected
 router.use(protect);
 
