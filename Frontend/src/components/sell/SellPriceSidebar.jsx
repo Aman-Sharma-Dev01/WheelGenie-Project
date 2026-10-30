@@ -40,11 +40,11 @@ const SellPriceSidebar = ({
 
   return (
     <aside className="space-y-4">
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <div className="rounded-2xl border border-white/80 bg-white/95 p-5 shadow-xl sm:p-6 backdrop-blur-xl">
         {/* Estimated Price Block */}
         <div className="rounded-xl bg-gradient-to-br from-green-50 to-white p-4">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-bold text-[#0B1F3A]">
+            <h3 className="text-sm font-bold text-[#092340]">
               Estimated Selling Price
             </h3>
 
@@ -89,7 +89,7 @@ const SellPriceSidebar = ({
         {/* Vehicle Summary Details */}
         <div className="mt-3">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-bold text-[#0B1F3A] truncate max-w-[210px]">
+            <h4 className="text-sm font-bold text-[#092340] truncate max-w-[210px]">
               {hasVehicleSelection ? vehicleTitle : "Select your vehicle details"}
             </h4>
 
@@ -97,9 +97,9 @@ const SellPriceSidebar = ({
               <button
                 type="button"
                 onClick={onEdit}
-                className="text-xs font-semibold text-green-600 hover:underline cursor-pointer"
+                className="text-xs font-semibold text-[#2F80ED] hover:underline cursor-pointer"
               >
-                Edit ?
+                Edit →
               </button>
             )}
           </div>
@@ -114,12 +114,12 @@ const SellPriceSidebar = ({
         </div>
 
         {/* Tip Box */}
-        <div className="mt-4 rounded-xl bg-green-50 p-3">
+        <div className="mt-4 rounded-xl bg-emerald-50/80 border border-emerald-100 p-3">
           <div className="flex gap-2">
-            <span className="text-green-600">?</span>
+            <span className="text-emerald-600 font-bold">💡</span>
 
             <div>
-              <p className="text-xs font-bold text-[#0B1F3A]">
+              <p className="text-xs font-bold text-[#092340]">
                 Tip: Complete your listing
               </p>
 
@@ -132,8 +132,8 @@ const SellPriceSidebar = ({
         </div>
 
         {/* What's Next Box */}
-        <div className="mt-4 rounded-xl bg-blue-50 p-4">
-          <h4 className="text-sm font-bold text-[#0B1F3A]">
+        <div className="mt-4 rounded-xl bg-blue-50/70 border border-blue-100 p-4">
+          <h4 className="text-sm font-bold text-[#092340]">
             What's Next?
           </h4>
 
@@ -143,18 +143,18 @@ const SellPriceSidebar = ({
           </p>
 
           <div className="mt-4 space-y-3">
-            <p className="flex gap-2 text-xs text-[#0B1F3A]">
-              <span className="text-[#247CF0]">?</span>
+            <p className="flex items-center gap-2 text-xs text-[#092340] font-medium">
+              <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#2F80ED] text-[10px] text-white">✓</span>
               Reach thousands of genuine buyers
             </p>
 
-            <p className="flex gap-2 text-xs text-[#0B1F3A]">
-              <span className="text-[#247CF0]">?</span>
+            <p className="flex items-center gap-2 text-xs text-[#092340] font-medium">
+              <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#2F80ED] text-[10px] text-white">✓</span>
               Get the best price for your car
             </p>
 
-            <p className="flex gap-2 text-xs text-[#0B1F3A]">
-              <span className="text-[#247CF0]">?</span>
+            <p className="flex items-center gap-2 text-xs text-[#092340] font-medium">
+              <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#2F80ED] text-[10px] text-white">✓</span>
               Safe & secure transactions
             </p>
           </div>

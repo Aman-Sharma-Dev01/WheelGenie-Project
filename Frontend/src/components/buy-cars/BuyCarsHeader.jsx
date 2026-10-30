@@ -38,10 +38,10 @@ export default function BuyCarsHeader({
     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
       {/* Left: Heading and Subtitle */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
           Buy Cars
         </h1>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1">
+        <p className="text-xs sm:text-sm text-slate-300 mt-1">
           Find your perfect car from thousands of verified listings.
         </p>
       </div>
@@ -52,26 +52,26 @@ export default function BuyCarsHeader({
         <button
           type="button"
           onClick={onOpenLocationModal}
-          className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 hover:border-slate-300 rounded-lg text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 transition cursor-pointer shrink-0"
+          className="flex items-center gap-1.5 px-3 py-2 bg-white/10 border border-white/15 hover:border-[#2F80ED] hover:bg-white/15 rounded-lg text-xs font-semibold text-white shadow-sm transition backdrop-blur-md cursor-pointer shrink-0"
           title="Change Country or City"
           aria-label="Change location"
         >
-          <MapPin size={13} className="text-[#155DFC]" />
+          <MapPin size={13} className="text-[#38BDF8]" />
           <span>{city ? `${city}, ${country}` : country}</span>
           <span className="text-sm">{countryConfig.flag}</span>
-          <ChevronDown size={13} className="text-slate-400" />
+          <ChevronDown size={13} className="text-slate-300" />
         </button>
 
         {/* Search Input Box */}
-        <div className="relative flex-1 md:w-[320px] lg:w-[380px] flex items-center bg-white border border-slate-200 rounded-lg shadow-2xs focus-within:border-[#155DFC] focus-within:ring-1 focus-within:ring-[#155DFC] transition">
-          <Search size={16} className="text-slate-400 ml-3 shrink-0" />
+        <div className="relative flex-1 md:w-[320px] lg:w-[380px] flex items-center bg-white/95 border border-white/80 rounded-lg shadow-md backdrop-blur-xl focus-within:border-[#2F80ED] focus-within:ring-2 focus-within:ring-[#2F80ED]/30 transition">
+          <Search size={16} className="text-[#2F80ED] ml-3 shrink-0" />
           <input
             type="text"
             value={localInput}
             onChange={(e) => setLocalInput(e.target.value)}
             placeholder="Search by make, model, or city"
             aria-label="Search listings"
-            className="w-full py-2 pl-2 pr-8 text-xs text-slate-800 placeholder-slate-400 bg-transparent outline-hidden"
+            className="w-full py-2 pl-2 pr-8 text-xs text-[#092340] font-medium placeholder-slate-400 bg-transparent outline-hidden"
           />
 
           {localInput && (
@@ -89,7 +89,7 @@ export default function BuyCarsHeader({
           <button
             type="button"
             onClick={onToggleMobileFilters}
-            className="p-1.5 mr-1.5 text-slate-500 hover:text-[#155DFC] hover:bg-slate-50 rounded transition cursor-pointer border-l border-slate-100"
+            className="p-1.5 mr-1.5 text-slate-500 hover:text-[#2F80ED] hover:bg-slate-100 rounded transition cursor-pointer border-l border-slate-200"
             aria-label="Open filters"
             title="Open Filters"
           >

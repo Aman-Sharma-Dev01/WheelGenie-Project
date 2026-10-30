@@ -210,20 +210,39 @@ export default function Buy() {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F8FAFC]">
+    <div
+      className="flex min-h-screen flex-col bg-[#092340] text-slate-100 relative overflow-hidden selection:bg-[#2F80ED]/30 selection:text-white"
+      style={{
+        background:
+          "radial-gradient(ellipse at 50% 0%, #0d355f 0%, #092340 55%, #05182e 100%)",
+      }}
+    >
+      {/* Ambient gradient glow orbs */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-24 left-1/4 h-96 w-96 rounded-full bg-[#2F80ED]/20 blur-[120px]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute top-1/3 -right-24 h-96 w-96 rounded-full bg-[#00D2FF]/15 blur-[130px]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-1/4 -left-20 h-96 w-96 rounded-full bg-[#134A8A]/30 blur-[110px]"
+      />
       {/* 1. Standard Global Navbar (Untouched) */}
       <Navbar activePage="buy" />
 
       {/* Main Marketplace Area */}
-      <main className="flex-1 w-full max-w-[1140px] mx-auto px-4 sm:px-6 pt-6 pb-16">
+      <main className="flex-1 w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-16">
         {/* Wishlist Active Banner (if filtered by wishlist) */}
         {showWishlistOnly && (
-          <div className="mb-4 bg-rose-50 border border-rose-200 py-2.5 px-4 rounded-xl text-xs text-rose-800 font-semibold flex items-center justify-between shadow-2xs">
+          <div className="mb-4 bg-white/95 border border-rose-200 py-2.5 px-4 rounded-xl text-xs text-rose-800 font-semibold flex items-center justify-between shadow-lg backdrop-blur-xl">
             <span>Showing only your Wishlisted vehicles ({displayedCars.length})</span>
             <button
               type="button"
               onClick={() => navigate('/buy', { replace: true })}
-              className="underline text-[#155DFC] hover:text-blue-700 cursor-pointer"
+              className="underline text-[#2F80ED] hover:text-blue-700 cursor-pointer"
             >
               Show all cars
             </button>
@@ -239,7 +258,7 @@ export default function Buy() {
         />
 
         {/* 3. Categories & Trust Benefits in One Unified Row */}
-        <div className="flex flex-col xl:flex-row gap-3 items-stretch mb-6">
+        <div className="flex flex-col lg:flex-row gap-3.5 items-stretch mb-6">
           <div className="flex-1 min-w-0">
             <CarCategories
               selectedCategory={selectedCategory}
@@ -247,7 +266,7 @@ export default function Buy() {
               categoryCounts={categoryCounts}
             />
           </div>
-          <div className="w-full xl:w-[410px] shrink-0 flex items-stretch">
+          <div className="w-full lg:w-[480px] xl:w-[520px] shrink-0 flex items-stretch">
             <MarketplaceBenefits />
           </div>
         </div>

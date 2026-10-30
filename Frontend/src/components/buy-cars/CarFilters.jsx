@@ -134,7 +134,7 @@ export default function CarFilters({
       )}
 
       <aside
-        className={`bg-white rounded-xl border border-slate-200 p-4 shadow-2xs w-full lg:w-[220px] xl:w-[230px] shrink-0 transition-transform duration-300 lg:static lg:block ${
+        className={`bg-white/95 rounded-xl border border-white/80 p-4 shadow-xl backdrop-blur-xl w-full lg:w-[220px] xl:w-[230px] shrink-0 transition-transform duration-300 lg:static lg:block ${
           isOpenMobile
             ? 'fixed top-0 left-0 bottom-0 z-50 w-[280px] overflow-y-auto translate-x-0'
             : 'hidden lg:block'
@@ -142,12 +142,12 @@ export default function CarFilters({
       >
         {/* Top Header: Filters & Reset */}
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-          <h3 className="text-sm font-bold text-slate-900">Filters</h3>
+          <h3 className="text-sm font-bold text-[#092340]">Filters</h3>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleReset}
-              className="text-xs font-semibold text-[#155DFC] hover:underline cursor-pointer"
+              className="text-xs font-semibold text-[#2F80ED] hover:underline cursor-pointer"
             >
               Reset
             </button>
@@ -166,7 +166,7 @@ export default function CarFilters({
 
         {/* 1. Price Range */}
         <div className="py-3.5 border-b border-slate-100">
-          <label className="block text-xs font-semibold text-slate-800 mb-2">
+          <label className="block text-xs font-semibold text-[#092340] font-bold mb-2">
             Price Range
           </label>
           <div className="flex items-center justify-between text-[11px] text-slate-500 mb-2">
@@ -185,13 +185,13 @@ export default function CarFilters({
             value={maxPrice}
             onChange={(e) => setMaxPrice(Number(e.target.value))}
             aria-label="Filter maximum price"
-            className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#155DFC]"
+            className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#2F80ED]"
           />
         </div>
 
         {/* 2. Make */}
         <div className="py-3.5 border-b border-slate-100">
-          <label htmlFor="filter-make" className="block text-xs font-semibold text-slate-800 mb-1.5">
+          <label htmlFor="filter-make" className="block text-xs font-semibold text-[#092340] font-bold mb-1.5">
             Make
           </label>
           <div className="relative">
@@ -200,7 +200,7 @@ export default function CarFilters({
               value={selectedMake}
               onChange={handleMakeChange}
               aria-label="Select Make"
-              className="w-full appearance-none bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 outline-hidden focus:border-[#155DFC] cursor-pointer"
+              className="w-full appearance-none bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 outline-hidden focus:border-[#2F80ED] cursor-pointer"
             >
               <option value="">Select Make</option>
               {availableMakes.map((make) => (
@@ -215,7 +215,7 @@ export default function CarFilters({
 
         {/* 3. Model */}
         <div className="py-3.5 border-b border-slate-100">
-          <label htmlFor="filter-model" className="block text-xs font-semibold text-slate-800 mb-1.5">
+          <label htmlFor="filter-model" className="block text-xs font-semibold text-[#092340] font-bold mb-1.5">
             Model
           </label>
           <div className="relative">
@@ -225,7 +225,7 @@ export default function CarFilters({
               onChange={(e) => setSelectedModel(e.target.value)}
               disabled={!selectedMake}
               aria-label="Select Model"
-              className="w-full appearance-none bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 outline-hidden focus:border-[#155DFC] disabled:bg-slate-50 disabled:text-slate-400 cursor-pointer"
+              className="w-full appearance-none bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 outline-hidden focus:border-[#2F80ED] disabled:bg-slate-50 disabled:text-slate-400 cursor-pointer"
             >
               <option value="">
                 {selectedMake ? 'Select Model' : 'Select Make First'}
@@ -242,7 +242,7 @@ export default function CarFilters({
 
         {/* 4. Year Range */}
         <div className="py-3.5 border-b border-slate-100">
-          <label className="block text-xs font-semibold text-slate-800 mb-1.5">
+          <label className="block text-xs font-semibold text-[#092340] font-bold mb-1.5">
             Year
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -251,7 +251,7 @@ export default function CarFilters({
                 value={minYear}
                 onChange={(e) => setMinYear(e.target.value)}
                 aria-label="Minimum Year"
-                className="w-full appearance-none bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-700 outline-hidden focus:border-[#155DFC] cursor-pointer"
+                className="w-full appearance-none bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-700 outline-hidden focus:border-[#2F80ED] cursor-pointer"
               >
                 <option value="">Min Year</option>
                 {YEARS.map((y) => (
@@ -268,7 +268,7 @@ export default function CarFilters({
                 value={maxYear}
                 onChange={(e) => setMaxYear(e.target.value)}
                 aria-label="Maximum Year"
-                className="w-full appearance-none bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-700 outline-hidden focus:border-[#155DFC] cursor-pointer"
+                className="w-full appearance-none bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-700 outline-hidden focus:border-[#2F80ED] cursor-pointer"
               >
                 <option value="">Max Year</option>
                 {YEARS.map((y) => (
@@ -284,7 +284,7 @@ export default function CarFilters({
 
         {/* 5. Fuel Type */}
         <div className="py-3.5 border-b border-slate-100">
-          <label className="block text-xs font-semibold text-slate-800 mb-2">
+          <label className="block text-xs font-semibold text-[#092340] font-bold mb-2">
             Fuel Type
           </label>
           <div className="grid grid-cols-2 gap-y-2 gap-x-2">
@@ -294,7 +294,7 @@ export default function CarFilters({
                   type="checkbox"
                   checked={fuels.includes(fuel)}
                   onChange={() => toggleFuel(fuel)}
-                  className="rounded border-slate-300 text-[#155DFC] focus:ring-[#155DFC] accent-[#155DFC]"
+                  className="rounded border-slate-300 text-[#2F80ED] focus:ring-[#2F80ED] accent-[#2F80ED]"
                 />
                 <span className="truncate">{fuel}</span>
               </label>
@@ -304,7 +304,7 @@ export default function CarFilters({
 
         {/* 6. Transmission */}
         <div className="py-3.5 border-b border-slate-100">
-          <label className="block text-xs font-semibold text-slate-800 mb-2">
+          <label className="block text-xs font-semibold text-[#092340] font-bold mb-2">
             Transmission
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -314,7 +314,7 @@ export default function CarFilters({
                   type="checkbox"
                   checked={transmissions.includes(trans)}
                   onChange={() => toggleTransmission(trans)}
-                  className="rounded border-slate-300 text-[#155DFC] focus:ring-[#155DFC] accent-[#155DFC]"
+                  className="rounded border-slate-300 text-[#2F80ED] focus:ring-[#2F80ED] accent-[#2F80ED]"
                 />
                 <span>{trans}</span>
               </label>
@@ -324,7 +324,7 @@ export default function CarFilters({
 
         {/* 7. Ownership */}
         <div className="py-3.5 border-b border-slate-100">
-          <label className="block text-xs font-semibold text-slate-800 mb-2">
+          <label className="block text-xs font-semibold text-[#092340] font-bold mb-2">
             Ownership
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -334,7 +334,7 @@ export default function CarFilters({
                   type="checkbox"
                   checked={ownerships.includes(owner)}
                   onChange={() => toggleOwnership(owner)}
-                  className="rounded border-slate-300 text-[#155DFC] focus:ring-[#155DFC] accent-[#155DFC]"
+                  className="rounded border-slate-300 text-[#2F80ED] focus:ring-[#2F80ED] accent-[#2F80ED]"
                 />
                 <span className="truncate">{owner}</span>
               </label>
@@ -347,7 +347,7 @@ export default function CarFilters({
           <button
             type="button"
             onClick={handleApply}
-            className="w-full bg-[#155DFC] hover:bg-blue-600 text-white font-semibold py-2 rounded-lg text-xs shadow-xs transition cursor-pointer"
+            className="w-full bg-gradient-to-r from-[#092340] via-[#103E70] to-[#2F80ED] hover:from-[#0B2E54] hover:to-[#256DD6] text-white font-bold py-2.5 rounded-lg text-xs shadow-md shadow-[#092340]/25 transition cursor-pointer hover:-translate-y-0.5"
           >
             Apply Filters
           </button>
@@ -355,7 +355,7 @@ export default function CarFilters({
           <button
             type="button"
             onClick={handleReset}
-            className="w-full text-slate-500 hover:text-slate-800 text-xs py-1 text-center transition cursor-pointer"
+            className="w-full text-slate-500 hover:text-[#092340] font-bold text-xs py-1 text-center transition cursor-pointer"
           >
             Clear All
           </button>

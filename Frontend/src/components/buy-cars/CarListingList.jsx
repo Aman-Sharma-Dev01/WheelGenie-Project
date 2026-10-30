@@ -39,7 +39,7 @@ export default function CarListingList({
   return (
     <article
       onClick={() => onSelectCar && onSelectCar(car)}
-      className="car-card flex flex-col sm:flex-row overflow-hidden border border-slate-200 rounded-xl hover:border-blue-200 hover:shadow-lg transition-all duration-300 bg-white cursor-pointer group"
+      className="car-card flex flex-col sm:flex-row overflow-hidden border border-white/80 rounded-xl hover:border-blue-300 hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300 bg-white/95 backdrop-blur-xl cursor-pointer group"
     >
       {/* Left Image Area */}
       <div className="relative w-full sm:w-64 h-48 sm:h-auto shrink-0 overflow-hidden bg-slate-100">
@@ -78,7 +78,7 @@ export default function CarListingList({
           <div className="flex items-start justify-between gap-3 mb-2">
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-wg-navy group-hover:text-wg-blue transition-colors">
+                <h3 className="text-base font-bold text-[#092340] group-hover:text-[#2F80ED] transition-colors">
                   {car.brand} {car.model} {car.variant || ''}
                 </h3>
                 {car.isVerified && (
@@ -102,7 +102,7 @@ export default function CarListingList({
             </div>
 
             <div className="text-right">
-              <span className="text-xl font-extrabold text-wg-blue block">
+              <span className="text-xl font-extrabold text-[#2F80ED] block">
                 {formattedPrice}
               </span>
               <span className="text-[10px] text-slate-400">Fixed Fair Price</span>

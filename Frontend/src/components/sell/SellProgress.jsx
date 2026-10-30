@@ -2,7 +2,7 @@ import { sellSteps } from "../../data/sellData";
 
 const SellProgress = ({ currentStep = 1 }) => {
   return (
-    <div className="w-full rounded-2xl border border-slate-200 bg-white px-5 py-6 shadow-sm">
+    <div className="w-full rounded-2xl border border-white/80 bg-white/95 px-5 py-6 shadow-xl backdrop-blur-xl">
       <div className="flex items-center justify-between gap-3 overflow-x-auto">
         {sellSteps.map((step, index) => {
           const active = currentStep === step.number;
@@ -20,7 +20,7 @@ const SellProgress = ({ currentStep = 1 }) => {
                     rounded-full text-lg transition-all duration-300
                     ${
                       active || completed
-                        ? "bg-[#247CF0] text-white shadow-md shadow-blue-100"
+                        ? "bg-gradient-to-r from-[#092340] to-[#2F80ED] text-white shadow-md shadow-[#2F80ED]/30"
                         : "bg-slate-100 text-slate-500"
                     }
                   `}
@@ -31,7 +31,7 @@ const SellProgress = ({ currentStep = 1 }) => {
                 <div className="whitespace-nowrap">
                   <p
                     className={`text-sm font-bold ${
-                      active ? "text-[#0B1F3A]" : "text-slate-700"
+                      active ? "text-[#092340]" : "text-slate-700"
                     }`}
                   >
                     {step.title}

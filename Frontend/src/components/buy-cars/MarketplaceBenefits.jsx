@@ -21,7 +21,7 @@ const BENEFITS = [
 export default function MarketplaceBenefits() {
   return (
     <div
-      className="bg-white border border-slate-200 rounded-xl p-2.5 flex items-center justify-between divide-x divide-slate-100 shadow-2xs w-full"
+      className="bg-white/95 border border-white/80 rounded-xl px-4 py-2.5 flex items-center justify-between divide-x divide-slate-100 shadow-md backdrop-blur-xl w-full overflow-hidden"
       aria-label="Marketplace Trust Benefits"
     >
       {BENEFITS.map((item, index) => {
@@ -29,16 +29,16 @@ export default function MarketplaceBenefits() {
         return (
           <div
             key={index}
-            className="flex items-center gap-2.5 px-3 py-1 flex-1 first:pl-2 last:pr-2"
+            className="flex items-center gap-2.5 px-3 py-1 flex-1 min-w-0 first:pl-0 last:pr-0"
           >
-            <div className="w-8 h-8 rounded-lg bg-blue-50/70 text-[#155DFC] flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#2F80ED] flex items-center justify-center shrink-0">
               <Icon size={18} />
             </div>
-            <div className="min-w-0">
-              <strong className="block text-xs font-bold text-slate-900 leading-tight truncate">
+            <div className="min-w-0 flex-1">
+              <strong className="block text-xs font-bold text-[#092340] leading-tight truncate">
                 {item.title}
               </strong>
-              <span className="block text-[10px] text-slate-500 leading-tight mt-0.5 truncate">
+              <span className="block text-[11px] text-slate-500 leading-tight mt-0.5 truncate">
                 {item.description}
               </span>
             </div>

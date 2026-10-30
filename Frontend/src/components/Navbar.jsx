@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -29,8 +29,25 @@ export default function Navbar({ activePage = "about" }) {
       .slice(0, 2);
   };
 
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 15);
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-50 border-b border-white/70 bg-white/75 backdrop-blur-xl shadow-[0_4px_30px_rgba(11,31,58,0.025)] transition-all duration-300">
+    <header
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        isScrolled
+          ? "border-b border-white/60 bg-white/80 backdrop-blur-xl shadow-[0_4px_30px_rgba(11,31,58,0.08)]"
+          : "border-b border-slate-200/80 bg-white shadow-none"
+      }`}
+    >
       <div className="wg-container">
         <div className="flex h-[76px] items-center justify-between">
           

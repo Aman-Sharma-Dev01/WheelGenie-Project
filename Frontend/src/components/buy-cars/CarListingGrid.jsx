@@ -46,11 +46,11 @@ export default function CarListingGrid({
   // Empty State
   if (!cars || cars.length === 0) {
     return (
-      <div className="py-16 px-6 text-center bg-white border border-slate-200 rounded-xl shadow-2xs">
-        <div className="w-12 h-12 rounded-full bg-blue-50 text-[#155DFC] flex items-center justify-center mx-auto mb-3">
+      <div className="py-16 px-6 text-center bg-white/95 border border-white/80 rounded-xl shadow-xl backdrop-blur-xl">
+        <div className="w-12 h-12 rounded-full bg-blue-50 text-[#2F80ED] flex items-center justify-center mx-auto mb-3">
           <Car size={24} />
         </div>
-        <h3 className="text-base font-bold text-slate-900 mb-1">
+        <h3 className="text-base font-bold text-[#092340] mb-1">
           No vehicles found
         </h3>
         <p className="text-xs text-slate-500 max-w-sm mx-auto mb-4">
@@ -59,7 +59,7 @@ export default function CarListingGrid({
         <button
           type="button"
           onClick={onResetFilters}
-          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#155DFC] hover:bg-blue-600 text-white rounded-lg text-xs font-semibold transition-all shadow-xs cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-[#092340] via-[#103E70] to-[#2F80ED] hover:from-[#0B2E54] hover:to-[#256DD6] text-white rounded-lg text-xs font-bold transition-all shadow-md cursor-pointer hover:-translate-y-0.5"
         >
           <RefreshCw size={13} />
           <span>Reset All Filters</span>

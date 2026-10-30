@@ -4,7 +4,7 @@ import CarCondition from "./CarCondition";
 import { ALL_CITIES } from "../../context/LocationContext";
 
 const inputClass =
-  "h-11 w-full rounded-xl border border-white/85 bg-white/75 px-3.5 text-sm font-medium text-[#1D1435] outline-none transition-all placeholder:text-slate-400 focus:bg-white/95 focus:border-[#7F68A9] focus:ring-4 focus:ring-[#7F68A9]/20 shadow-sm backdrop-blur-md";
+  "h-11 w-full rounded-xl border border-slate-200/90 bg-white/85 px-3.5 text-sm font-medium text-[#092340] outline-none transition-all placeholder:text-slate-400 hover:border-slate-300 focus:bg-white focus:border-[#2F80ED] focus:ring-4 focus:ring-[#2F80ED]/20 shadow-xs backdrop-blur-md";
 
 /**
  * Enhanced Searchable Select Field for Make, Model, Variant
@@ -64,7 +64,7 @@ const SearchableSelectField = ({
 
   return (
     <div className="relative" ref={containerRef}>
-      <label className="mb-2 block text-xs font-bold text-[#1D1435]">
+      <label className="mb-2 block text-xs font-bold text-[#092340]">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
 
@@ -88,11 +88,11 @@ const SearchableSelectField = ({
 
         <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
           {loading ? (
-            <Loader2 size={16} className="animate-spin text-[#7F68A9]" />
+            <Loader2 size={16} className="animate-spin text-[#2F80ED]" />
           ) : (
             <ChevronDown
               size={16}
-              className={`transition-transform duration-200 ${isOpen ? "rotate-180 text-[#7F68A9]" : ""}`}
+              className={`transition-transform duration-200 ${isOpen ? "rotate-180 text-[#2F80ED]" : ""}`}
             />
           )}
         </div>
@@ -107,10 +107,10 @@ const SearchableSelectField = ({
 
       {/* Dropdown Menu */}
       {isOpen && !disabled && (
-        <div className="absolute left-0 right-0 top-full z-40 mt-1.5 max-h-56 overflow-y-auto rounded-2xl border border-white/80 bg-white/95 p-1.5 shadow-xl backdrop-blur-xl animate-in fade-in zoom-in-95 duration-100">
+        <div className="absolute left-0 right-0 top-full z-40 mt-1.5 max-h-56 overflow-y-auto rounded-2xl border border-slate-200 bg-white/98 p-1.5 shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95 duration-100">
           {loading ? (
             <div className="flex items-center justify-center gap-2 py-6 text-xs font-semibold text-slate-500">
-              <Loader2 size={15} className="animate-spin text-[#7F68A9]" />
+              <Loader2 size={15} className="animate-spin text-[#2F80ED]" />
               <span>Loading catalogue...</span>
             </div>
           ) : error ? (
@@ -119,7 +119,7 @@ const SearchableSelectField = ({
               <button
                 type="button"
                 onClick={() => onSearch?.(query)}
-                className="mt-1.5 text-xs font-bold text-[#7F68A9] hover:underline cursor-pointer"
+                className="mt-1.5 text-xs font-bold text-[#2F80ED] hover:underline cursor-pointer"
               >
                 Retry
               </button>
@@ -138,12 +138,12 @@ const SearchableSelectField = ({
                   onClick={() => handleSelectOption(opt)}
                   className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-xs font-semibold transition cursor-pointer ${
                     isSelected
-                      ? "bg-[#7F68A9]/20 text-[#1D1435]"
-                      : "text-slate-700 hover:bg-slate-100/80 hover:text-[#1D1435]"
+                      ? "bg-blue-50 text-[#092340] font-bold"
+                      : "text-slate-700 hover:bg-slate-100/80 hover:text-[#092340]"
                   }`}
                 >
                   <span className="truncate">{opt.name}</span>
-                  {isSelected && <Check size={14} className="text-[#7F68A9]" />}
+                  {isSelected && <Check size={14} className="text-[#2F80ED]" />}
                 </button>
               );
             })
@@ -169,7 +169,7 @@ const SelectField = ({
 }) => {
   return (
     <div>
-      <label className="mb-2 block text-xs font-bold text-[#1D1435]">
+      <label className="mb-2 block text-xs font-bold text-[#092340]">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
 
@@ -187,7 +187,7 @@ const SelectField = ({
           </option>
 
           {options.map((option) => (
-            <option key={option} value={option} className="text-slate-800 bg-white">
+            <option key={option} value={option} className="text-[#092340] bg-white">
               {option}
             </option>
           ))}
@@ -222,7 +222,7 @@ const TextField = ({
 }) => {
   return (
     <div>
-      <label className="mb-2 block text-xs font-bold text-[#1D1435]">
+      <label className="mb-2 block text-xs font-bold text-[#092340]">
         {label} <span className="text-red-500">*</span>
       </label>
 
@@ -307,28 +307,28 @@ const CarDetailsForm = ({
       {/* Ambient gradient glow orbs visible through frosted glass */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -top-12 -left-12 h-80 w-80 rounded-full bg-[#7F68A9]/35 blur-[90px]"
+        className="pointer-events-none absolute -top-12 -left-12 h-80 w-80 rounded-full bg-[#2F80ED]/30 blur-[100px]"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-12 -right-12 h-96 w-96 rounded-full bg-[#7F68A9]/30 blur-[100px]"
+        className="pointer-events-none absolute -bottom-12 -right-12 h-96 w-96 rounded-full bg-[#00D2FF]/20 blur-[110px]"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-1/2 left-1/3 h-64 w-64 rounded-full bg-purple-300/25 blur-[80px]"
+        className="pointer-events-none absolute top-1/2 left-1/3 h-64 w-64 rounded-full bg-[#134A8A]/40 blur-[90px]"
       />
 
       {/* Frosted Glassmorphism Card */}
-      <div className="relative z-10 overflow-hidden rounded-[28px] border border-white/75 bg-gradient-to-br from-white/80 via-[#7F68A9]/15 to-[#7F68A9]/25 p-6 shadow-[0_20px_50px_rgba(127,104,169,0.22)] backdrop-blur-2xl sm:p-8 lg:p-9">
+      <div className="relative z-10 overflow-hidden rounded-[28px] border border-white/90 bg-gradient-to-br from-white/95 via-white/90 to-blue-50/70 p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.45)] backdrop-blur-2xl sm:p-8 lg:p-9">
         {/* Soft white/cream specular diagonal reflection */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white/50 via-white/15 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white/70 via-white/20 to-transparent" />
 
         <div className="relative z-10">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/85 bg-white/75 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#7F68A9] shadow-sm backdrop-blur-md">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200/80 bg-blue-50/80 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#092340] shadow-xs backdrop-blur-md">
             Step 1 of 5
           </span>
 
-          <h2 className="mt-3 font-['Poppins',sans-serif] text-2xl font-extrabold tracking-tight text-[#1D1435] sm:text-3xl">
+          <h2 className="mt-3 font-['Poppins',sans-serif] text-2xl font-extrabold tracking-tight text-[#092340] sm:text-3xl">
             Enter Your Car Details
           </h2>
 
@@ -481,11 +481,11 @@ const CarDetailsForm = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="relative z-10 mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between border-t border-white/60 pt-6">
+        <div className="relative z-10 mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between border-t border-slate-200/80 pt-6">
           <button
             type="button"
             onClick={onSaveExit}
-            className="h-11 rounded-xl border border-white/80 bg-white/75 px-5 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur-md transition hover:bg-white cursor-pointer"
+            className="h-11 rounded-xl border border-slate-300 bg-white/90 px-5 text-sm font-semibold text-slate-700 shadow-xs backdrop-blur-md transition hover:bg-white hover:text-[#092340] cursor-pointer"
           >
             Save & Exit
           </button>
@@ -493,10 +493,10 @@ const CarDetailsForm = ({
           <button
             type="button"
             onClick={onSaveContinue}
-            className="h-11 rounded-xl bg-gradient-to-r from-[#7F68A9] to-[#67518e] px-6 text-sm font-bold text-white shadow-lg shadow-[#7F68A9]/30 transition-all duration-200 hover:-translate-y-0.5 hover:from-[#725c99] hover:to-[#5c4680] cursor-pointer flex items-center justify-center gap-2"
+            className="h-11 rounded-xl bg-gradient-to-r from-[#092340] via-[#103E70] to-[#2F80ED] px-6 text-sm font-bold text-white shadow-lg shadow-[#092340]/30 transition-all duration-200 hover:-translate-y-0.5 hover:from-[#0B2E54] hover:to-[#256DD6] hover:shadow-[#2F80ED]/30 cursor-pointer flex items-center justify-center gap-2"
           >
             <span>Save & Continue</span>
-            <span>?</span>
+            <span className="text-base font-normal">→</span>
           </button>
         </div>
       </div>

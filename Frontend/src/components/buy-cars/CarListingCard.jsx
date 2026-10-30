@@ -41,7 +41,7 @@ export default function CarListingCard({
   return (
     <article
       onClick={() => onSelectCar && onSelectCar(car)}
-      className="group bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs hover:shadow-md hover:border-slate-300 transition-all cursor-pointer flex flex-col"
+      className="group bg-white/95 rounded-xl border border-white/80 overflow-hidden shadow-md hover:shadow-2xl hover:border-blue-300 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer flex flex-col backdrop-blur-xl"
       tabIndex={0}
       role="button"
       onKeyDown={(e) => {
@@ -64,7 +64,7 @@ export default function CarListingCard({
 
         {/* Featured Badge */}
         {car.isFeatured && (
-          <div className="absolute top-2.5 left-2.5 bg-[#155DFC] text-white text-[9px] font-bold px-2 py-0.5 rounded tracking-wide uppercase shadow-sm z-10">
+          <div className="absolute top-2.5 left-2.5 bg-gradient-to-r from-[#092340] to-[#2F80ED] text-white text-[9px] font-bold px-2 py-0.5 rounded tracking-wide uppercase shadow-sm z-10">
             FEATURED
           </div>
         )}
@@ -89,7 +89,7 @@ export default function CarListingCard({
         <div>
           {/* Title */}
           <h3
-            className="text-xs font-bold text-slate-900 truncate mb-1"
+            className="text-xs font-bold text-[#092340] group-hover:text-[#2F80ED] transition-colors truncate mb-1"
             title={`${car.brand} ${car.model} ${car.variant || ''}`}
           >
             {car.brand} {car.model} {car.variant ? car.variant : ''}
@@ -115,7 +115,7 @@ export default function CarListingCard({
         {/* Price & Verified Row */}
         <div>
           <div className="flex items-center justify-between pt-1">
-            <strong className="text-sm font-bold text-[#155DFC]">
+            <strong className="text-sm font-bold text-[#2F80ED]">
               {formattedPrice}
             </strong>
 

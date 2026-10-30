@@ -49,7 +49,13 @@ const Sell = () => {
   } = useSellCarForm(handleStepAdvance);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFD] text-[#0B1F3A]">
+    <div
+      className="min-h-screen bg-[#092340] text-slate-100 relative overflow-hidden selection:bg-[#2F80ED]/30 selection:text-white"
+      style={{
+        background:
+          "radial-gradient(ellipse at 50% 0%, #0d355f 0%, #092340 55%, #05182e 100%)",
+      }}
+    >
       <Navbar activePage="sell" />
 
       <main>
@@ -57,11 +63,11 @@ const Sell = () => {
         <section className="mx-auto w-full max-w-[1440px] px-5 pb-5 pt-8 sm:px-8 lg:px-12 lg:pt-10">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h1 className="text-3xl font-extrabold tracking-tight text-[#0B1F3A] sm:text-4xl">
+              <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
                 Sell Your Car
               </h1>
 
-              <p className="mt-2 text-sm text-slate-500 sm:text-base">
+              <p className="mt-2 text-sm text-slate-300 sm:text-base">
                 List your car in minutes and reach thousands of buyers.
               </p>
             </div>
@@ -71,10 +77,10 @@ const Sell = () => {
               <button
                 type="button"
                 onClick={() => setIsLocationModalOpen(true)}
-                className="group flex w-fit items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm transition hover:border-[#247CF0] hover:shadow-md cursor-pointer text-left"
+                className="group flex w-fit items-center gap-3 rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 shadow-sm transition hover:border-[#2F80ED] hover:bg-white/15 backdrop-blur-md cursor-pointer text-left"
                 title="Click to view and change your location"
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[#247CF0] group-hover:bg-blue-100 transition-colors">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-[#38BDF8] group-hover:bg-blue-500/30 transition-colors">
                   {isLocating ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
@@ -83,17 +89,17 @@ const Sell = () => {
                 </div>
 
                 <div className="min-w-[120px]">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-300">
                     Your Location
                   </p>
 
                   <div className="flex items-center gap-1.5">
-                    <p className="text-sm font-bold text-[#0B1F3A] truncate max-w-[130px]">
+                    <p className="text-sm font-bold text-white truncate max-w-[130px]">
                       {isLocating ? "Detecting..." : city || "Select City"}
                     </p>
                     <ChevronDown
                       size={14}
-                      className="text-slate-400 group-hover:text-[#247CF0] transition-colors"
+                      className="text-slate-300 group-hover:text-[#38BDF8] transition-colors"
                     />
                   </div>
                 </div>
@@ -140,17 +146,17 @@ const Sell = () => {
                 onSaveExit={handleSaveAndExit}
               />
             ) : (
-              <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm flex flex-col items-center justify-center min-h-[400px] text-center">
+              <div className="rounded-2xl border border-white/80 bg-white/95 p-8 shadow-xl backdrop-blur-xl flex flex-col items-center justify-center min-h-[400px] text-center">
                 <div className="h-16 w-16 rounded-full bg-blue-50 text-[#247CF0] flex items-center justify-center text-2xl font-bold mb-4">
                   {currentStep}
                 </div>
-                <h3 className="text-xl font-bold text-[#0B1F3A]">
+                <h3 className="text-xl font-bold text-[#092340]">
                   {currentStep === 2 && "Step 2: Upload Photos"}
                   {currentStep === 3 && "Step 3: Pricing & Valuation"}
                   {currentStep === 4 && "Step 4: Contact Details"}
                   {currentStep === 5 && "Step 5: Review & Publish"}
                 </h3>
-                <p className="mt-2 text-sm text-slate-500 max-w-md">
+                <p className="mt-2 text-sm text-slate-600 max-w-md">
                   Vehicle details for{" "}
                   <span className="font-semibold text-slate-700">
                     {[formData?.make?.name, formData?.model?.name, formData?.variant?.name]
@@ -166,7 +172,7 @@ const Sell = () => {
                       setCurrentStep(1);
                       window.scrollTo({ top: 0, behavior: "smooth" });
                     }}
-                    className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+                    className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
                   >
                     ← Back to Car Details
                   </button>
@@ -174,7 +180,7 @@ const Sell = () => {
                     <button
                       type="button"
                       onClick={handleStepAdvance}
-                      className="rounded-xl bg-[#247CF0] px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-600 transition cursor-pointer"
+                      className="rounded-xl bg-gradient-to-r from-[#092340] via-[#103E70] to-[#2F80ED] px-5 py-2.5 text-sm font-semibold text-white hover:from-[#0B2E54] hover:to-[#256DD6] shadow-md transition cursor-pointer"
                     >
                       Next Step →
                     </button>
