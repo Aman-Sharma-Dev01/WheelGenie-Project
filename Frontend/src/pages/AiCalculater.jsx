@@ -598,16 +598,14 @@ export default function AICalculator() {
 
   return (
     <div
-      className="min-h-screen bg-[#092340] text-slate-100 relative overflow-hidden selection:bg-[#2F80ED]/30 selection:text-white"
+      className="min-h-screen bg-[#092340] text-slate-100 relative overflow-x-clip selection:bg-[#2F80ED]/30 selection:text-white"
       style={{
         background:
           "radial-gradient(ellipse at 50% 0%, #0d355f 0%, #092340 55%, #05182e 100%)",
       }}
     >
       {/* ---------------- Top Nav ---------------- */}
-      <div className="sticky top-0 z-50">
-        <Navbar activePage="calculator" />
-      </div>
+      <Navbar activePage="calculator" />
 
       <main className="mx-auto max-w-7xl px-6 pb-20 pt-10">
         {/* ---------------- Page Heading ---------------- */}
