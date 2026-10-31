@@ -218,33 +218,17 @@ function TextInput({ label, value, onChange, suffix, icon: Icon, placeholder, li
   );
 }
 
-// Searchable dropdown: typing filters the suggestions; submitted values are
-// validated against the available options.
+// Dropdown fields accept catalogue values only.
 function Combobox({ label, value, onChange, options, placeholder, required }) {
   const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState(""); // what the user has typed since opening
   const wrapRef = useRef(null);
 
-  const filtered =
-    query.trim() === ""
-      ? options
-      : options.filter((opt) => opt.toLowerCase().includes(query.toLowerCase()));
-
   const openList = () => {
-    setQuery("");
-    setOpen(true);
-  };
-
-  const handleInputChange = (e) => {
-    const next = e.target.value;
-    onChange(next);
-    setQuery(next);
     setOpen(true);
   };
 
   const handleSelect = (opt) => {
     onChange(opt);
-    setQuery("");
     setOpen(false);
   };
 
@@ -260,8 +244,15 @@ function Combobox({ label, value, onChange, options, placeholder, required }) {
       <div className="relative">
         <input
           value={value}
-          onChange={handleInputChange}
           onFocus={openList}
+          onClick={openList}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setOpen(false);
+            if (e.key === "ArrowDown") setOpen(true);
+          }}
+          readOnly
+          aria-haspopup="listbox"
+          aria-expanded={open}
           placeholder={placeholder}
           className={`${glassInputClass} appearance-none pr-9`}
         />
@@ -276,12 +267,17 @@ function Combobox({ label, value, onChange, options, placeholder, required }) {
         </button>
       </div>
 
-      {open && filtered.length > 0 && (
-        <div className="absolute z-20 mt-1.5 max-h-52 w-full overflow-y-auto rounded-xl border border-white/85 bg-white/95 py-1.5 shadow-lg backdrop-blur-md">
-          {filtered.map((opt) => (
+      {open && options.length > 0 && (
+        <div
+          role="listbox"
+          className="absolute z-20 mt-1.5 max-h-52 w-full overflow-y-auto rounded-xl border border-white/85 bg-white/95 py-1.5 shadow-lg backdrop-blur-md"
+        >
+          {options.map((opt) => (
             <button
               key={opt}
               type="button"
+              role="option"
+              aria-selected={value === opt}
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => handleSelect(opt)}
               className="block w-full px-3.5 py-2 text-left text-sm font-medium text-slate-700 hover:bg-[#7F68A9]/10 hover:text-[#5c4680]"
@@ -601,7 +597,13 @@ export default function AICalculator() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFD] text-[#0B1F3A]">
+    <div
+      className="min-h-screen bg-[#092340] text-slate-100 relative overflow-hidden selection:bg-[#2F80ED]/30 selection:text-white"
+      style={{
+        background:
+          "radial-gradient(ellipse at 50% 0%, #0d355f 0%, #092340 55%, #05182e 100%)",
+      }}
+    >
       {/* ---------------- Top Nav ---------------- */}
       <div className="sticky top-0 z-50">
         <Navbar activePage="calculator" />
@@ -614,10 +616,10 @@ export default function AICalculator() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-[#0B1F3A] sm:text-4xl">
+          <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl">
             AI Car Value Calculator
           </h1>
-          <p className="mt-2 text-sm text-slate-500 sm:text-base">
+          <p className="mt-2 text-sm text-slate-300 sm:text-base">
             Get an instant, accurate estimate of your car's value using AI.
           </p>
         </motion.div>
@@ -1006,11 +1008,18 @@ export default function AICalculator() {
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {/* Price breakdown */}
-                  <div className="rounded-xl border border-blue-100/70 bg-gradient-to-br from-blue-50/70 via-indigo-50/50 to-white p-4">
-                    <p className="text-xs font-bold text-slate-700">
-                      Price Breakdown
-                    </p>
-                    <div className="mt-3 space-y-2.5 text-[11.5px]">
+                  <div className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-white to-slate-50 p-4 shadow-[0_8px_24px_rgba(15,35,65,0.10)] transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_14px_30px_rgba(15,35,65,0.16)]">
+                    <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#092340] to-[#2F80ED]" />
+                    <div className="pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full bg-blue-100/70 blur-2xl transition-colors group-hover:bg-blue-200/60" />
+                    <div className="relative flex items-center justify-between gap-2">
+                      <p className="text-xs font-extrabold tracking-wide text-slate-800">
+                        Price Breakdown
+                      </p>
+                      <span className="inline-flex items-center gap-1 rounded-full border border-blue-100 bg-blue-50 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-[#245A9A] shadow-sm">
+                        <Sparkles size={11} /> AI valuation
+                      </span>
+                    </div>
+                    <div className="relative mt-3 space-y-2.5 text-[11.5px]">
                       <Row label={`Model Prediction (${make} ${model} ${variant})`} value={formatINR(breakdown.base)} />
                       <Row
                         label={`Condition Adjustment (${CONDITIONS.find((c) => c.id === condition)?.label})`}
@@ -1018,11 +1027,11 @@ export default function AICalculator() {
                         positive={breakdown.conditionAdj >= 0}
                         negative={breakdown.conditionAdj < 0}
                       />
-                      <div className="mt-1 flex items-center justify-between border-t border-blue-100/70 pt-2.5">
+                      <div className="mt-1 flex items-center justify-between gap-2 rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-slate-50 px-3 py-2.5 shadow-sm">
                         <span className="text-[11.5px] font-bold text-slate-800">
                           Final Estimated Value
                         </span>
-                        <span className="text-[13px] font-extrabold text-blue-600">
+                        <span className="text-[13px] font-extrabold text-[#245A9A]">
                           {formatINR(breakdown.total)}
                         </span>
                       </div>
@@ -1030,55 +1039,59 @@ export default function AICalculator() {
                   </div>
 
                   {/* Market comparison */}
-                  <div className="rounded-xl border border-blue-100/70 bg-gradient-to-br from-blue-50/70 via-indigo-50/50 to-white p-4">
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs font-bold text-slate-700">
-                        Market Comparison
+                  <div className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-white to-blue-50/70 p-4 shadow-[0_8px_24px_rgba(15,35,65,0.10)] transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_14px_30px_rgba(15,35,65,0.16)]">
+                    <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#103E70] to-[#5B8CCB]" />
+                    <div className="pointer-events-none absolute -bottom-12 -right-8 h-32 w-32 rounded-full bg-blue-100/70 blur-2xl transition-colors group-hover:bg-blue-200/60" />
+                    <div className="relative">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-extrabold tracking-wide text-slate-800">
+                          Market Comparison
+                        </p>
+                        <span className="rounded-full border border-blue-100 bg-blue-50 px-2 py-1 text-[9px] font-bold text-[#245A9A] shadow-sm">
+                          How we calculate?
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[10.5px] font-medium text-slate-500">
+                        Based on similar cars in {city}
                       </p>
-                      <span className="text-[10px] font-medium text-blue-500">
-                        How we calculate?
-                      </span>
-                    </div>
-                    <p className="mt-0.5 text-[10.5px] font-medium text-blue-500/80">
-                      Based on similar cars in {city}
-                    </p>
 
-                    <div className="relative mt-6 h-1.5 rounded-full bg-slate-100">
-                      <div className="absolute left-1/2 top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-blue-600 shadow" />
-                      <div className="absolute left-0 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-slate-300" />
-                      <div className="absolute right-0 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-slate-300" />
-                    </div>
-                    <div className="mt-2 flex justify-between text-[10px] font-semibold text-slate-600">
-                      <span>
-                        {(breakdown.low / 100000).toFixed(2)}L
-                        <br />Lower Price
-                      </span>
-                      <span className="text-center font-semibold text-blue-600">
-                        {(breakdown.total / 100000).toFixed(2)}L
-                        <br />Your Car Value
-                      </span>
-                      <span className="text-right">
-                        {(breakdown.high / 100000).toFixed(2)}L
-                        <br />Higher Price
-                      </span>
-                    </div>
+                      <div className="relative mt-6 h-2 rounded-full bg-gradient-to-r from-slate-200 via-blue-300 to-slate-200 shadow-inner">
+                        <div className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white bg-[#2F80ED] shadow-[0_2px_8px_rgba(47,128,237,0.35)] ring-2 ring-blue-100" />
+                        <div className="absolute left-0 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-slate-300" />
+                        <div className="absolute right-0 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-slate-300" />
+                      </div>
+                      <div className="mt-2 flex justify-between text-[10px] font-semibold text-slate-600">
+                        <span>
+                          {(breakdown.low / 100000).toFixed(2)}L
+                          <br />Lower Price
+                        </span>
+                        <span className="rounded-lg border border-blue-100 bg-blue-50 px-2 py-1 text-center font-extrabold text-[#245A9A]">
+                          {(breakdown.total / 100000).toFixed(2)}L
+                          <br />Your Car Value
+                        </span>
+                        <span className="text-right">
+                          {(breakdown.high / 100000).toFixed(2)}L
+                          <br />Higher Price
+                        </span>
+                      </div>
 
-                    <p className="mt-4 text-[11px] font-bold text-slate-700">
-                      Why this price?
-                    </p>
-                    <ul className="mt-2 space-y-1.5 text-[11px] text-slate-500">
-                      {[
-                        "High demand for this model",
-                        "Low depreciation for this variant",
-                        "Good condition value",
-                        "Market trend in your location",
-                      ].map((r) => (
-                        <li key={r} className="flex items-center gap-1.5">
-                          <CheckCircle2 size={12} className="text-green-500" />
-                          {r}
-                        </li>
-                      ))}
-                    </ul>
+                      <p className="mt-4 text-[11px] font-extrabold text-slate-800">
+                        Why this price?
+                      </p>
+                      <ul className="mt-2 space-y-1.5 text-[11px] text-slate-500">
+                        {[
+                          "High demand for this model",
+                          "Low depreciation for this variant",
+                          "Good condition value",
+                          "Market trend in your location",
+                        ].map((r) => (
+                          <li key={r} className="flex items-center gap-1.5">
+                            <CheckCircle2 size={12} className="text-green-500" />
+                            {r}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
                 </div>
 
