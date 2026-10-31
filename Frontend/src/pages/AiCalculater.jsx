@@ -37,11 +37,8 @@ const CONDITIONS = [
   { id: "poor", label: "Poor", icon: Info },
 ];
 
-// These are just autocomplete *suggestions* / realistic filters — the make
-// and model fields still accept free text (since without your training CSV
-// we can't know every exact category CatBoost saw during training). But for
-// any make/model that IS in this catalogue, the Fuel Type and Transmission
-// dropdowns are filtered to only what that model actually ships with —
+// Make/model/variant inputs accept only catalogue values. Fuel Type and
+// Transmission are limited to what the selected model actually ships with —
 // e.g. Thar never shows CNG, Bolero never shows Automatic.
 const CAR_CATALOG = {
   Toyota: {
@@ -104,12 +101,9 @@ const CAR_CATALOG = {
 };
 
 const MAKE_SUGGESTIONS = Object.keys(CAR_CATALOG);
-const ALL_FUELS = ["Diesel", "Petrol", "CNG", "Electric", "Hybrid"];
-const ALL_TRANSMISSIONS = ["Manual", "Automatic"];
+const YEAR_OPTIONS = ["2024", "2023", "2022", "2021", "2020", "2019"];
 
-// City -> a few real RTO codes registered in that city. Again, just
-// suggestions for the free-text RTO field — pick the one that matches your
-// training data, or type your own.
+// City -> RTO codes registered in that city.
 const CITY_RTO_MAP = {
   Delhi: ["DL01", "DL02", "DL03", "DL08", "DLBC"],
   Mumbai: ["MH01", "MH02", "MH03", "MH04"],
@@ -224,11 +218,8 @@ function TextInput({ label, value, onChange, suffix, icon: Icon, placeholder, li
   );
 }
 
-// A searchable dropdown that always shows the FULL suggestion list on open
-// (unlike the native <datalist>, which silently filters to only entries that
-// contain the current value as a substring). Still accepts free text — the
-// suggestions are just a shortcut, not a restriction, so any car/city/etc
-// can be typed in and submitted.
+// Searchable dropdown: typing filters the suggestions; submitted values are
+// validated against the available options.
 function Combobox({ label, value, onChange, options, placeholder, required }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState(""); // what the user has typed since opening
@@ -332,8 +323,9 @@ export default function AICalculator() {
   const [imageFailed, setImageFailed] = useState(false);
   const [processedUrl, setProcessedUrl] = useState("");
   const [bgRemoving, setBgRemoving] = useState(false);
+  const [imageRequest, setImageRequest] = useState(null);
 
-  // Fetch the Wikipedia thumbnail and remove its background in the browser.
+  // Fetch and process a car photo only after the user requests a valuation.
   useEffect(() => {
     setImageLoaded(false);
     setImageFailed(false);
@@ -343,7 +335,7 @@ export default function AICalculator() {
       return "";
     });
 
-    if (!make.trim() || !model.trim()) return;
+    if (!imageRequest?.make.trim() || !imageRequest?.model.trim()) return;
 
     let cancelled = false;
     (async () => {
@@ -352,7 +344,7 @@ export default function AICalculator() {
       try {
         const res = await fetch(
           `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(
-            `${make} ${model} car`.trim()
+            `${imageRequest.make} ${imageRequest.model} car`.trim()
           )}&gsrlimit=1&prop=pageimages&piprop=thumbnail&pithumbsize=420&format=json&origin=*`
         );
         const data = await res.json();
@@ -392,39 +384,78 @@ export default function AICalculator() {
     return () => {
       cancelled = true;
     };
-  }, [make, model]);
+  }, [imageRequest]);
 
   const carImageUrl = processedUrl;
+  const imageMatchesCurrentCar =
+    imageRequest?.make === make.trim() &&
+    imageRequest?.model === model.trim();
 
-  // Model/variant suggestion lists follow whatever make/model is selected.
-  // If the typed make/model isn't in CAR_CATALOG (free text, unlisted car),
-  // we fall back to the full generic lists so nothing is ever blocked.
+  // Dependent options are available only for known catalogue entries.
   const modelSuggestions = Object.keys(CAR_CATALOG[make] ?? {});
   const carInfo = CAR_CATALOG[make]?.[model];
   const variantSuggestions = carInfo?.variants ?? [];
-  const fuelOptions = carInfo?.fuels ?? ALL_FUELS;
-  const transmissionOptions = carInfo?.transmissions ?? ALL_TRANSMISSIONS;
-  const rtoSuggestions = CITY_RTO_MAP[city] ?? Object.values(CITY_RTO_MAP).flat();
+  const fuelOptions = carInfo?.fuels ?? [];
+  const transmissionOptions = carInfo?.transmissions ?? [];
+  const rtoSuggestions = CITY_RTO_MAP[city] ?? [];
 
-  // Keep fuel/transmission valid whenever the selected model changes — e.g.
-  // switching from Nexon (has CNG) to Thar (no CNG) shouldn't leave "CNG"
-  // silently selected in the background. Skipped while make/model/city are
-  // still empty so the form doesn't silently auto-fill on first load.
-  useEffect(() => {
-    if (!make || !model) return;
-    if (!fuelOptions.includes(fuel)) setFuel(fuelOptions[0] ?? "");
-  }, [make, model]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (!make || !model) return;
-    if (!transmissionOptions.includes(transmission)) setTransmission(transmissionOptions[0] ?? "");
-  }, [make, model]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (!city) return;
-    if (!rtoSuggestions.includes(rto)) setRto(rtoSuggestions[0] ?? "");
-  }, [city]); // eslint-disable-line react-hooks/exhaustive-deps
+  const clearValuation = () => {
+    setCalculated(false);
+    setPrediction(null);
+    setShareStatus("");
+    setApiError("");
+  };
+  const updateValuationInput = (setter) => (value) => {
+    setter(value);
+    clearValuation();
+  };
 
-  const isFormValid =
-    make.trim() && model.trim() && variant.trim() && year && fuel && transmission && kms && city.trim() && rto.trim();
+  const handleMakeChange = (value) => {
+    setMake(value);
+    setModel("");
+    setVariant("");
+    setFuel("");
+    setTransmission("");
+    clearValuation();
+  };
+  const handleModelChange = (value) => {
+    setModel(value);
+    setVariant("");
+    setFuel("");
+    setTransmission("");
+    clearValuation();
+  };
+  const handleCityChange = (value) => {
+    setCity(value);
+    setRto("");
+    clearValuation();
+  };
+
+  const hasRequiredFields = [
+    make.trim(),
+    model.trim(),
+    variant.trim(),
+    year,
+    fuel,
+    transmission,
+    kms.trim(),
+    city.trim(),
+    rto.trim(),
+  ].every(Boolean);
+  const invalidSuggestionFields = [
+    [make, MAKE_SUGGESTIONS, "Make"],
+    [model, modelSuggestions, "Model"],
+    [variant, variantSuggestions, "Variant"],
+    [fuel, fuelOptions, "Fuel Type"],
+    [transmission, transmissionOptions, "Transmission"],
+    [year, YEAR_OPTIONS, "Year of Purchase"],
+    [city, CITY_SUGGESTIONS, "City"],
+    [rto, rtoSuggestions, "RTO"],
+  ]
+    .filter(([value, options]) => !options.includes(value.trim()))
+    .map(([, , label]) => label);
+  const mileage = Number(kms.replace(/,/g, "").trim());
+  const isMileageValid = Number.isFinite(mileage) && mileage >= 0;
 
   // Condition isn't part of the CatBoost model's feature set (see main.py's
   // EXPECTED_COLUMNS), so we apply it as a light client-side adjustment on
@@ -453,24 +484,41 @@ export default function AICalculator() {
   }, [prediction, condition]);
 
   const handleCalculate = async () => {
-    if (!isFormValid) {
+    if (!hasRequiredFields) {
       setApiError("Please fill in every field before calculating.");
       return;
     }
+    if (invalidSuggestionFields.length > 0) {
+      setApiError(
+        `Please select valid options for: ${invalidSuggestionFields.join(", ")}.`
+      );
+      return;
+    }
+    if (!isMileageValid) {
+      setApiError("KMs Driven must be a valid number greater than or equal to 0.");
+      return;
+    }
+    if (!condition) {
+      setApiError("Please select your car's condition before calculating.");
+      return;
+    }
+    setCalculated(false);
+    setPrediction(null);
+    setImageRequest({ make: make.trim(), model: model.trim() });
     setLoading(true);
     setApiError("");
     setShareStatus("");
     setStep(2);
 
     const payload = {
-      make,
-      model,
-      variant,
-      fuel,
-      transmission,
-      location: city,
-      rto,
-      mileage: parseFloat(kms.replace(/,/g, "")) || 0,
+      make: make.trim(),
+      model: model.trim(),
+      variant: variant.trim(),
+      fuel: fuel.trim(),
+      transmission: transmission.trim(),
+      location: city.trim(),
+      rto: rto.trim(),
+      mileage,
       age: Math.max(0, new Date().getFullYear() - parseInt(year, 10)),
     };
 
@@ -579,43 +627,40 @@ export default function AICalculator() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.03 }}
-          className="mt-8 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-[0_4px_24px_rgba(11,31,58,0.04)]"
+          className="mt-8 rounded-2xl border border-white/80 bg-white/95 px-5 py-6 shadow-xl backdrop-blur-xl"
         >
           <div className="flex items-center">
             {STEPS.map((s, i) => {
               const Icon = s.icon;
-              const active = step >= s.id;
+              const active = step === s.id;
+              const completed = step > s.id;
               return (
                 <div key={s.id} className="flex flex-1 items-center last:flex-none">
                   <div className="flex items-center gap-3">
                     <div
-                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors ${
-                        active
-                          ? "bg-blue-600 text-white"
-                          : "bg-slate-100 text-slate-400"
+                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg transition-all duration-300 ${
+                        active || completed
+                          ? "bg-gradient-to-r from-[#092340] to-[#2F80ED] text-white shadow-md shadow-[#2F80ED]/30"
+                          : "bg-slate-100 text-slate-500"
                       }`}
                     >
                       <Icon size={17} />
                     </div>
                     <div className="hidden sm:block">
                       <p
-                        className={`text-[13px] font-bold leading-tight ${
-                          active ? "text-slate-800" : "text-slate-400"
+                        className={`text-sm font-bold leading-tight ${
+                          active ? "text-[#092340]" : "text-slate-700"
                         }`}
                       >
                         {s.label}
                       </p>
-                      <p className="text-[11px] leading-tight text-slate-400">
+                      <p className="mt-0.5 text-xs leading-tight text-slate-500">
                         {s.subtitle}
                       </p>
                     </div>
                   </div>
                   {i < STEPS.length - 1 && (
-                    <div
-                      className={`mx-3 h-px flex-1 border-t-2 border-dashed transition-colors ${
-                        step > s.id ? "border-blue-300" : "border-slate-200"
-                      }`}
-                    />
+                    <div className="mx-2 block h-px flex-1 border-t border-dashed border-slate-300 sm:mx-4" />
                   )}
                 </div>
               );
@@ -646,7 +691,7 @@ export default function AICalculator() {
               className="pointer-events-none absolute top-1/2 left-1/3 h-64 w-64 rounded-full bg-purple-300/25 blur-[80px]"
             />
 
-            <div className="relative z-10 flex h-full flex-col overflow-hidden rounded-[28px] border border-white/75 bg-gradient-to-br from-white/80 via-[#7F68A9]/15 to-[#7F68A9]/25 p-5 shadow-[0_20px_50px_rgba(127,104,169,0.22)] backdrop-blur-2xl sm:p-7">
+            <div className="relative z-10 flex h-full flex-col overflow-hidden rounded-[28px] border border-white/90 bg-gradient-to-br from-white/95 via-white/90 to-blue-50/70 p-5 shadow-xl backdrop-blur-2xl sm:p-7">
               {/* Soft white/cream specular diagonal reflection */}
               <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white/50 via-white/15 to-transparent" />
 
@@ -668,7 +713,7 @@ export default function AICalculator() {
                 <Combobox
                   label="Make"
                   value={make}
-                  onChange={setMake}
+                  onChange={handleMakeChange}
                   options={MAKE_SUGGESTIONS}
                   placeholder="e.g. Toyota"
                   required
@@ -676,7 +721,7 @@ export default function AICalculator() {
                 <Combobox
                   label="Model"
                   value={model}
-                  onChange={setModel}
+                  onChange={handleModelChange}
                   options={modelSuggestions}
                   placeholder="e.g. Fortuner"
                   required
@@ -684,7 +729,7 @@ export default function AICalculator() {
                 <Combobox
                   label="Variant"
                   value={variant}
-                  onChange={setVariant}
+                  onChange={updateValuationInput(setVariant)}
                   options={variantSuggestions}
                   placeholder="e.g. 2.8 4x4 AT"
                   required
@@ -695,15 +740,15 @@ export default function AICalculator() {
                 <Select
                   label="Year of Purchase"
                   value={year}
-                  onChange={setYear}
-                  options={["2024", "2023", "2022", "2021", "2020", "2019"]}
+                  onChange={updateValuationInput(setYear)}
+                  options={YEAR_OPTIONS}
                   placeholder="Select year"
                   required
                 />
                 <Select
                   label="Fuel Type"
                   value={fuel}
-                  onChange={setFuel}
+                  onChange={updateValuationInput(setFuel)}
                   options={fuelOptions}
                   placeholder="Select fuel"
                   required
@@ -711,7 +756,7 @@ export default function AICalculator() {
                 <Select
                   label="Transmission"
                   value={transmission}
-                  onChange={setTransmission}
+                  onChange={updateValuationInput(setTransmission)}
                   options={transmissionOptions}
                   placeholder="Select"
                   required
@@ -719,11 +764,17 @@ export default function AICalculator() {
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <TextInput label="KMs Driven" value={kms} onChange={setKms} suffix="km" required />
+                <TextInput
+                  label="KMs Driven"
+                  value={kms}
+                  onChange={updateValuationInput(setKms)}
+                  suffix="km"
+                  required
+                />
                 <Combobox
                   label="City"
                   value={city}
-                  onChange={setCity}
+                  onChange={handleCityChange}
                   options={CITY_SUGGESTIONS}
                   placeholder="e.g. Delhi"
                   required
@@ -731,7 +782,7 @@ export default function AICalculator() {
                 <Combobox
                   label="RTO"
                   value={rto}
-                  onChange={setRto}
+                  onChange={updateValuationInput(setRto)}
                   options={rtoSuggestions}
                   placeholder="e.g. DLBC"
                   required
@@ -750,7 +801,10 @@ export default function AICalculator() {
                     return (
                       <button
                         key={c.id}
-                        onClick={() => setCondition(c.id)}
+                        onClick={() => {
+                          setCondition(c.id);
+                          clearValuation();
+                        }}
                         className={`flex flex-col items-center gap-1.5 rounded-xl border px-2 py-3 text-[11px] font-semibold backdrop-blur-md transition-all ${
                           active
                             ? "border-[#7F68A9] bg-white/85 text-[#5c4680] shadow-[0_2px_8px_rgba(127,104,169,0.25)]"
@@ -787,7 +841,7 @@ export default function AICalculator() {
 
                 <button
                   onClick={handleCalculate}
-                  disabled={loading || !isFormValid}
+                  disabled={loading}
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#7F68A9] to-[#67518e] py-3.5 text-sm font-bold text-white shadow-lg shadow-[#7F68A9]/30 transition-all duration-200 hover:-translate-y-0.5 hover:from-[#725c99] hover:to-[#5c4680] disabled:pointer-events-none disabled:opacity-50"
                 >
                   {loading ? "Calculating..." : "Calculate Value"}
@@ -809,7 +863,7 @@ export default function AICalculator() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.12 }}
-            className="relative rounded-2xl border border-[#7F68A9]/25 bg-[#7F68A9]/15 p-5 shadow-[0_16px_40px_rgba(127,104,169,0.22)] sm:p-7"
+            className="relative rounded-2xl border border-white/80 bg-white/95 p-5 shadow-xl backdrop-blur-xl sm:p-7"
           >
             {/* Soft white specular highlight, same treatment as the form card. Uses a
                 matching top-rounded corner (instead of overflow-hidden on the card)
@@ -847,10 +901,6 @@ export default function AICalculator() {
                   rectangle. Full-width and shorter on mobile, fixed compact
                   size from the sm breakpoint up. */}
               <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
-                <span className="flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-600">
-                  <Sparkles size={10} /> AI Powered
-                </span>
-
                 <div
                   className={`relative h-[150px] w-full overflow-hidden rounded-xl sm:h-[135px] sm:w-[275px] ${
                     carImageUrl && !imageFailed && imageLoaded
@@ -858,11 +908,11 @@ export default function AICalculator() {
                       : "bg-gradient-to-br from-slate-50 to-blue-50/40"
                   }`}
                 >
-                  {carImageUrl && !imageFailed && (
+                  {imageMatchesCurrentCar && carImageUrl && !imageFailed && (
                     <img
                       key={carImageUrl}
                       src={carImageUrl}
-                      alt={`${make} ${model} ${year}`}
+                      alt={`${imageRequest?.make} ${imageRequest?.model} ${year}`}
                       className={`h-full w-full rounded-xl object-contain object-center transition-opacity duration-300 ${
                         imageLoaded ? "opacity-100" : "opacity-0"
                       }`}
@@ -874,7 +924,7 @@ export default function AICalculator() {
                   {/* Shown while we're finding a photo AND while background
                       removal is running — the plain "with background" photo
                       is never revealed, only the final result. */}
-                  {make.trim() && model.trim() && !carImageUrl && !imageFailed && (
+                  {imageMatchesCurrentCar && !carImageUrl && !imageFailed && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-slate-300">
                       <motion.div
                         animate={{ rotate: 360 }}
@@ -888,7 +938,8 @@ export default function AICalculator() {
                     </div>
                   )}
 
-                  {(!carImageUrl || imageFailed) && !(make.trim() && model.trim() && !imageFailed) && (
+                  {(!imageMatchesCurrentCar || !carImageUrl || imageFailed) &&
+                    !(imageMatchesCurrentCar && !carImageUrl && !imageFailed) && (
                     <div className="flex h-full items-center justify-center">
                       <svg width="210" height="75" viewBox="0 0 180 70" fill="none">
                         <rect x="10" y="30" width="160" height="24" rx="6" fill="#CBD5E1" />
