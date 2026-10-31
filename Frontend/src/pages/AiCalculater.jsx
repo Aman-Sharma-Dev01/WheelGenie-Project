@@ -410,6 +410,7 @@ export default function AICalculator() {
     clearValuation();
   };
 
+<<<<<<< HEAD
   const handleMakeChange = (value) => {
     setMake(value);
     setModel("");
@@ -431,6 +432,8 @@ export default function AICalculator() {
     clearValuation();
   };
 
+=======
+>>>>>>> 8c69a9ea12829774210b26fcb74623261648b95e
   const hasRequiredFields = [
     make.trim(),
     model.trim(),
@@ -442,6 +445,7 @@ export default function AICalculator() {
     city.trim(),
     rto.trim(),
   ].every(Boolean);
+<<<<<<< HEAD
   const invalidSuggestionFields = [
     [make, MAKE_SUGGESTIONS, "Make"],
     [model, modelSuggestions, "Model"],
@@ -454,6 +458,8 @@ export default function AICalculator() {
   ]
     .filter(([value, options]) => !options.includes(value.trim()))
     .map(([, , label]) => label);
+=======
+>>>>>>> 8c69a9ea12829774210b26fcb74623261648b95e
   const mileage = Number(kms.replace(/,/g, "").trim());
   const isMileageValid = Number.isFinite(mileage) && mileage >= 0;
 
@@ -488,12 +494,15 @@ export default function AICalculator() {
       setApiError("Please fill in every field before calculating.");
       return;
     }
+<<<<<<< HEAD
     if (invalidSuggestionFields.length > 0) {
       setApiError(
         `Please select valid options for: ${invalidSuggestionFields.join(", ")}.`
       );
       return;
     }
+=======
+>>>>>>> 8c69a9ea12829774210b26fcb74623261648b95e
     if (!isMileageValid) {
       setApiError("KMs Driven must be a valid number greater than or equal to 0.");
       return;
@@ -502,8 +511,11 @@ export default function AICalculator() {
       setApiError("Please select your car's condition before calculating.");
       return;
     }
+<<<<<<< HEAD
     setCalculated(false);
     setPrediction(null);
+=======
+>>>>>>> 8c69a9ea12829774210b26fcb74623261648b95e
     setImageRequest({ make: make.trim(), model: model.trim() });
     setLoading(true);
     setApiError("");
@@ -511,6 +523,7 @@ export default function AICalculator() {
     setStep(2);
 
     const payload = {
+<<<<<<< HEAD
       make: make.trim(),
       model: model.trim(),
       variant: variant.trim(),
@@ -518,6 +531,15 @@ export default function AICalculator() {
       transmission: transmission.trim(),
       location: city.trim(),
       rto: rto.trim(),
+=======
+      make,
+      model,
+      variant,
+      fuel,
+      transmission,
+      location: city,
+      rto,
+>>>>>>> 8c69a9ea12829774210b26fcb74623261648b95e
       mileage,
       age: Math.max(0, new Date().getFullYear() - parseInt(year, 10)),
     };
@@ -660,7 +682,11 @@ export default function AICalculator() {
                     </div>
                   </div>
                   {i < STEPS.length - 1 && (
+<<<<<<< HEAD
                     <div className="mx-2 block h-px flex-1 border-t border-dashed border-slate-300 sm:mx-4" />
+=======
+                    <div className="mx-4 hidden h-px flex-1 border-t border-dashed border-slate-300 lg:block" />
+>>>>>>> 8c69a9ea12829774210b26fcb74623261648b95e
                   )}
                 </div>
               );
@@ -691,7 +717,11 @@ export default function AICalculator() {
               className="pointer-events-none absolute top-1/2 left-1/3 h-64 w-64 rounded-full bg-purple-300/25 blur-[80px]"
             />
 
+<<<<<<< HEAD
             <div className="relative z-10 flex h-full flex-col overflow-hidden rounded-[28px] border border-white/90 bg-gradient-to-br from-white/95 via-white/90 to-blue-50/70 p-5 shadow-xl backdrop-blur-2xl sm:p-7">
+=======
+            <div className="relative z-10 flex h-full flex-col overflow-hidden rounded-[28px] border border-white/90 bg-gradient-to-br from-white/95 via-white/90 to-blue-50/70 p-5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.45)] backdrop-blur-2xl sm:p-7">
+>>>>>>> 8c69a9ea12829774210b26fcb74623261648b95e
               {/* Soft white/cream specular diagonal reflection */}
               <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white/50 via-white/15 to-transparent" />
 
