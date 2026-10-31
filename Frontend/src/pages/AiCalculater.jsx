@@ -332,8 +332,9 @@ export default function AICalculator() {
   const [imageFailed, setImageFailed] = useState(false);
   const [processedUrl, setProcessedUrl] = useState("");
   const [bgRemoving, setBgRemoving] = useState(false);
+  const [imageRequest, setImageRequest] = useState(null);
 
-  // Fetch the Wikipedia thumbnail and remove its background in the browser.
+  // Fetch and process a car photo only after the user requests a valuation.
   useEffect(() => {
     setImageLoaded(false);
     setImageFailed(false);
@@ -343,7 +344,7 @@ export default function AICalculator() {
       return "";
     });
 
-    if (!make.trim() || !model.trim()) return;
+    if (!imageRequest?.make.trim() || !imageRequest?.model.trim()) return;
 
     let cancelled = false;
     (async () => {
@@ -352,7 +353,7 @@ export default function AICalculator() {
       try {
         const res = await fetch(
           `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(
-            `${make} ${model} car`.trim()
+            `${imageRequest.make} ${imageRequest.model} car`.trim()
           )}&gsrlimit=1&prop=pageimages&piprop=thumbnail&pithumbsize=420&format=json&origin=*`
         );
         const data = await res.json();
@@ -392,9 +393,12 @@ export default function AICalculator() {
     return () => {
       cancelled = true;
     };
-  }, [make, model]);
+  }, [imageRequest]);
 
   const carImageUrl = processedUrl;
+  const imageMatchesCurrentCar =
+    imageRequest?.make === make.trim() &&
+    imageRequest?.model === model.trim();
 
   // Model/variant suggestion lists follow whatever make/model is selected.
   // If the typed make/model isn't in CAR_CATALOG (free text, unlisted car),
@@ -423,8 +427,19 @@ export default function AICalculator() {
     if (!rtoSuggestions.includes(rto)) setRto(rtoSuggestions[0] ?? "");
   }, [city]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const isFormValid =
-    make.trim() && model.trim() && variant.trim() && year && fuel && transmission && kms && city.trim() && rto.trim();
+  const hasRequiredFields = [
+    make.trim(),
+    model.trim(),
+    variant.trim(),
+    year,
+    fuel,
+    transmission,
+    kms.trim(),
+    city.trim(),
+    rto.trim(),
+  ].every(Boolean);
+  const mileage = Number(kms.replace(/,/g, "").trim());
+  const isMileageValid = Number.isFinite(mileage) && mileage >= 0;
 
   // Condition isn't part of the CatBoost model's feature set (see main.py's
   // EXPECTED_COLUMNS), so we apply it as a light client-side adjustment on
@@ -453,10 +468,19 @@ export default function AICalculator() {
   }, [prediction, condition]);
 
   const handleCalculate = async () => {
-    if (!isFormValid) {
+    if (!hasRequiredFields) {
       setApiError("Please fill in every field before calculating.");
       return;
     }
+    if (!isMileageValid) {
+      setApiError("KMs Driven must be a valid number greater than or equal to 0.");
+      return;
+    }
+    if (!condition) {
+      setApiError("Please select your car's condition before calculating.");
+      return;
+    }
+    setImageRequest({ make: make.trim(), model: model.trim() });
     setLoading(true);
     setApiError("");
     setShareStatus("");
@@ -470,7 +494,7 @@ export default function AICalculator() {
       transmission,
       location: city,
       rto,
-      mileage: parseFloat(kms.replace(/,/g, "")) || 0,
+      mileage,
       age: Math.max(0, new Date().getFullYear() - parseInt(year, 10)),
     };
 
@@ -579,43 +603,40 @@ export default function AICalculator() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.03 }}
-          className="mt-8 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-[0_4px_24px_rgba(11,31,58,0.04)]"
+          className="mt-8 rounded-2xl border border-white/80 bg-white/95 px-5 py-6 shadow-xl backdrop-blur-xl"
         >
           <div className="flex items-center">
             {STEPS.map((s, i) => {
               const Icon = s.icon;
-              const active = step >= s.id;
+              const active = step === s.id;
+              const completed = step > s.id;
               return (
                 <div key={s.id} className="flex flex-1 items-center last:flex-none">
                   <div className="flex items-center gap-3">
                     <div
-                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors ${
-                        active
-                          ? "bg-blue-600 text-white"
-                          : "bg-slate-100 text-slate-400"
+                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg transition-all duration-300 ${
+                        active || completed
+                          ? "bg-gradient-to-r from-[#092340] to-[#2F80ED] text-white shadow-md shadow-[#2F80ED]/30"
+                          : "bg-slate-100 text-slate-500"
                       }`}
                     >
                       <Icon size={17} />
                     </div>
                     <div className="hidden sm:block">
                       <p
-                        className={`text-[13px] font-bold leading-tight ${
-                          active ? "text-slate-800" : "text-slate-400"
+                        className={`text-sm font-bold leading-tight ${
+                          active ? "text-[#092340]" : "text-slate-700"
                         }`}
                       >
                         {s.label}
                       </p>
-                      <p className="text-[11px] leading-tight text-slate-400">
+                      <p className="mt-0.5 text-xs leading-tight text-slate-500">
                         {s.subtitle}
                       </p>
                     </div>
                   </div>
                   {i < STEPS.length - 1 && (
-                    <div
-                      className={`mx-3 h-px flex-1 border-t-2 border-dashed transition-colors ${
-                        step > s.id ? "border-blue-300" : "border-slate-200"
-                      }`}
-                    />
+                    <div className="mx-4 hidden h-px flex-1 border-t border-dashed border-slate-300 lg:block" />
                   )}
                 </div>
               );
@@ -646,7 +667,7 @@ export default function AICalculator() {
               className="pointer-events-none absolute top-1/2 left-1/3 h-64 w-64 rounded-full bg-purple-300/25 blur-[80px]"
             />
 
-            <div className="relative z-10 flex h-full flex-col overflow-hidden rounded-[28px] border border-white/75 bg-gradient-to-br from-white/80 via-[#7F68A9]/15 to-[#7F68A9]/25 p-5 shadow-[0_20px_50px_rgba(127,104,169,0.22)] backdrop-blur-2xl sm:p-7">
+            <div className="relative z-10 flex h-full flex-col overflow-hidden rounded-[28px] border border-white/90 bg-gradient-to-br from-white/95 via-white/90 to-blue-50/70 p-5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.45)] backdrop-blur-2xl sm:p-7">
               {/* Soft white/cream specular diagonal reflection */}
               <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white/50 via-white/15 to-transparent" />
 
@@ -787,7 +808,7 @@ export default function AICalculator() {
 
                 <button
                   onClick={handleCalculate}
-                  disabled={loading || !isFormValid}
+                  disabled={loading}
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#7F68A9] to-[#67518e] py-3.5 text-sm font-bold text-white shadow-lg shadow-[#7F68A9]/30 transition-all duration-200 hover:-translate-y-0.5 hover:from-[#725c99] hover:to-[#5c4680] disabled:pointer-events-none disabled:opacity-50"
                 >
                   {loading ? "Calculating..." : "Calculate Value"}
@@ -809,7 +830,7 @@ export default function AICalculator() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.12 }}
-            className="relative rounded-2xl border border-[#7F68A9]/25 bg-[#7F68A9]/15 p-5 shadow-[0_16px_40px_rgba(127,104,169,0.22)] sm:p-7"
+            className="relative rounded-2xl border border-white/80 bg-white/95 p-5 shadow-xl backdrop-blur-xl sm:p-7"
           >
             {/* Soft white specular highlight, same treatment as the form card. Uses a
                 matching top-rounded corner (instead of overflow-hidden on the card)
@@ -841,11 +862,12 @@ export default function AICalculator() {
                 )}
               </div>
 
-              {/* Right side: compact car photo. No animation; a soft edge-mask keeps
+              {/* Right side: AI badge above a compact car photo, matching
+                  the reference layout. No animation; a soft edge-mask keeps
                   the photo's own background from showing as a hard
                   rectangle. Full-width and shorter on mobile, fixed compact
                   size from the sm breakpoint up. */}
-              <div className="flex shrink-0 flex-col items-start sm:items-end">
+              <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
                 <div
                   className={`relative h-[150px] w-full overflow-hidden rounded-xl sm:h-[135px] sm:w-[275px] ${
                     carImageUrl && !imageFailed && imageLoaded
@@ -853,11 +875,11 @@ export default function AICalculator() {
                       : "bg-gradient-to-br from-slate-50 to-blue-50/40"
                   }`}
                 >
-                  {carImageUrl && !imageFailed && (
+                  {imageMatchesCurrentCar && carImageUrl && !imageFailed && (
                     <img
                       key={carImageUrl}
                       src={carImageUrl}
-                      alt={`${make} ${model} ${year}`}
+                      alt={`${imageRequest?.make} ${imageRequest?.model} ${year}`}
                       className={`h-full w-full rounded-xl object-contain object-center transition-opacity duration-300 ${
                         imageLoaded ? "opacity-100" : "opacity-0"
                       }`}
@@ -869,7 +891,7 @@ export default function AICalculator() {
                   {/* Shown while we're finding a photo AND while background
                       removal is running — the plain "with background" photo
                       is never revealed, only the final result. */}
-                  {make.trim() && model.trim() && !carImageUrl && !imageFailed && (
+                  {imageMatchesCurrentCar && !carImageUrl && !imageFailed && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-slate-300">
                       <motion.div
                         animate={{ rotate: 360 }}
@@ -883,7 +905,8 @@ export default function AICalculator() {
                     </div>
                   )}
 
-                  {(!carImageUrl || imageFailed) && !(make.trim() && model.trim() && !imageFailed) && (
+                  {(!imageMatchesCurrentCar || !carImageUrl || imageFailed) &&
+                    !(imageMatchesCurrentCar && !carImageUrl && !imageFailed) && (
                     <div className="flex h-full items-center justify-center">
                       <svg width="210" height="75" viewBox="0 0 180 70" fill="none">
                         <rect x="10" y="30" width="160" height="24" rx="6" fill="#CBD5E1" />
