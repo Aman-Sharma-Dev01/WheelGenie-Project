@@ -1013,9 +1013,6 @@ export default function AICalculator() {
                       <p className="text-xs font-extrabold tracking-wide text-slate-800">
                         Price Breakdown
                       </p>
-                      <span className="inline-flex items-center gap-1 rounded-full border border-blue-100 bg-blue-50 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-[#245A9A] shadow-sm">
-                        <Sparkles size={11} /> AI valuation
-                      </span>
                     </div>
                     <div className="relative mt-3 space-y-2.5 text-[11.5px]">
                       <Row label={`Model Prediction (${make} ${model} ${variant})`} value={formatINR(breakdown.base)} />
@@ -1045,9 +1042,6 @@ export default function AICalculator() {
                         <p className="text-xs font-extrabold tracking-wide text-slate-800">
                           Market Comparison
                         </p>
-                        <span className="rounded-full border border-blue-100 bg-blue-50 px-2 py-1 text-[9px] font-bold text-[#245A9A] shadow-sm">
-                          How we calculate?
-                        </span>
                       </div>
                       <p className="mt-1 text-[10.5px] font-medium text-slate-500">
                         Based on similar cars in {city}
