@@ -4,6 +4,8 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import {
   ChevronDown,
+  Check,
+  Loader2,
   ShieldCheck,
   TrendingUp,
   TrendingDown,
@@ -53,9 +55,49 @@ const CONDITIONS = [
   },
 ];
 
-const YEAR_OPTIONS = ["2024", "2023", "2022", "2021", "2020", "2019"];
+const YEAR_OPTIONS = Array.from({ length: 26 }, (_, index) =>
+  String(new Date().getFullYear() - index)
+);
+const MODEL_LAUNCH_YEARS = {
+  "maruti suzuki": {
+    swift: 2005,
+    baleno: 2015,
+    brezza: 2016,
+    ertiga: 2012,
+    "wagon r": 1999,
+    dzire: 2008,
+    "grand vitara": 2022,
+    fronx: 2023,
+  },
+  hyundai: { creta: 2015, venue: 2019, i20: 2008, verna: 2006, exter: 2023, alcazar: 2021 },
+  tata: { nexon: 2017, punch: 2021, harrier: 2019, safari: 1998, altroz: 2020, tiago: 2016 },
+  mahindra: {
+    thar: 2010,
+    "scorpio-n": 2022,
+    "scorpio classic": 2022,
+    xuv700: 2021,
+    "xuv 3xo": 2024,
+    bolero: 2000,
+  },
+  toyota: {
+    fortuner: 2009,
+    "innova crysta": 2016,
+    "innova hycross": 2022,
+    "urban cruiser hyryder": 2022,
+    glanza: 2019,
+    camry: 2002,
+  },
+  honda: { city: 1998, elevate: 2023, amaze: 2013 },
+  kia: { seltos: 2019, sonet: 2020, carens: 2022 },
+  volkswagen: { taigun: 2021, virtus: 2022 },
+  skoda: { slavia: 2022, kushaq: 2021 },
+  mg: { hector: 2019, "zs ev": 2020, astor: 2021 },
+  renault: { kwid: 2015, kiger: 2021, triber: 2019 },
+  ford: { ecosport: 2013, endeavour: 2003 },
+};
 const FUEL_OPTIONS = ["Petrol", "Diesel", "CNG", "Electric", "Hybrid"];
 const TRANSMISSION_OPTIONS = ["Manual", "Automatic", "AMT", "CVT", "DCT"];
+const MAX_MILEAGE_KM = 200000;
 
 // City -> RTO codes registered in that city.
 const CITY_RTO_MAP = {
@@ -91,13 +133,19 @@ function formatINR(n) {
   return "₹ " + Math.round(n).toLocaleString("en-IN");
 }
 
+function getModelLaunchYear(makeName, modelName) {
+  return MODEL_LAUNCH_YEARS[makeName.trim().toLowerCase()]?.[
+    modelName.trim().toLowerCase()
+  ];
+}
+
 // ---------------------------------------------------------------------------
 // Small building blocks
 // ---------------------------------------------------------------------------
 
 function FieldLabel({ children, required }) {
   return (
-    <label className="mb-2 block text-xs font-bold text-[#1D1435]">
+    <label className="mb-2 block text-xs font-bold text-[#092340]">
       {children}
       {required && <span className="ml-0.5 text-red-500">*</span>}
     </label>
@@ -107,7 +155,7 @@ function FieldLabel({ children, required }) {
 const glassInputClass =
   "h-11 w-full rounded-xl border border-slate-200/90 bg-white/85 px-3.5 text-sm font-medium text-[#092340] outline-none transition-all placeholder:text-slate-400 hover:border-slate-300 focus:bg-white focus:border-[#2F80ED] focus:ring-4 focus:ring-[#2F80ED]/20 shadow-xs backdrop-blur-md";
 
-function Select({ label, value, onChange, options, placeholder, required }) {
+function Select({ label, value, onChange, options, placeholder, required, minYear }) {
   return (
     <div>
       <FieldLabel required={required}>{label}</FieldLabel>
@@ -115,15 +163,18 @@ function Select({ label, value, onChange, options, placeholder, required }) {
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={`${glassInputClass} appearance-none pr-9 ${
-            value ? "text-[#1D1435]" : "text-slate-400"
-          }`}
+          className={`${glassInputClass} appearance-none pr-10 cursor-pointer`}
         >
           <option value="" disabled hidden>
             {placeholder || "Select…"}
           </option>
           {options.map((opt) => (
-            <option key={opt} value={opt}>
+            <option
+              key={opt}
+              value={opt}
+              disabled={minYear !== undefined && Number(opt) < minYear}
+              className="bg-white text-[#092340]"
+            >
               {opt}
             </option>
           ))}
@@ -137,13 +188,17 @@ function Select({ label, value, onChange, options, placeholder, required }) {
   );
 }
 
-function TextInput({ label, value, onChange, suffix, icon: Icon, placeholder, listId, list, required }) {
+function TextInput({ label, value, onChange, suffix, icon: Icon, placeholder, listId, list, required, type = "text", min, max, step }) {
   return (
     <div>
       <FieldLabel required={required}>{label}</FieldLabel>
       <div className="relative">
         <input
           value={value}
+          type={type}
+          min={min}
+          max={max}
+          step={step}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           list={listId}
@@ -197,7 +252,7 @@ function Combobox({
 
   const openList = () => {
     if (!disabled) {
-      setQuery("");
+      if (!open) setQuery("");
       setOpen(true);
     }
   };
@@ -240,58 +295,69 @@ function Combobox({
           aria-haspopup="listbox"
           aria-expanded={open}
           placeholder={placeholder}
-          className={`${glassInputClass} cursor-text appearance-none pr-9 ${
+          className={`${glassInputClass} cursor-pointer pr-10 ${
             disabled ? "cursor-not-allowed opacity-60" : ""
           }`}
         />
-        <button
-          type="button"
-          tabIndex={-1}
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={openList}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
-        >
-          <ChevronDown size={16} />
-        </button>
+        <div className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+          {loading ? (
+            <Loader2 size={16} className="animate-spin text-[#2F80ED]" />
+          ) : (
+            <ChevronDown
+              size={16}
+              className={`transition-transform duration-200 ${open ? "rotate-180 text-[#2F80ED]" : ""}`}
+            />
+          )}
+        </div>
       </div>
 
       {open && (
         <div
           role="listbox"
-          className="absolute z-20 mt-1.5 max-h-56 w-full overflow-y-auto rounded-2xl border border-slate-200 bg-white/98 p-1.5 shadow-2xl backdrop-blur-xl"
+          className="absolute left-0 right-0 top-full z-40 mt-1.5 max-h-56 overflow-y-auto rounded-2xl border border-slate-200 bg-white/98 p-1.5 shadow-2xl backdrop-blur-xl"
         >
           {loading ? (
-            <p className="px-3.5 py-3 text-sm text-slate-500">Loading options...</p>
+            <div className="flex items-center justify-center gap-2 py-6 text-xs font-semibold text-slate-500">
+              <Loader2 size={15} className="animate-spin text-[#2F80ED]" />
+              <span>Loading catalogue...</span>
+            </div>
           ) : error ? (
-            <div className="px-3.5 py-3 text-sm text-amber-700">
-              <p>{error}</p>
+            <div className="p-3 text-center">
+              <p className="text-xs font-medium text-amber-700">{error}</p>
               {onRetry && (
                 <button
                   type="button"
-                  onMouseDown={(e) => e.preventDefault()}
                   onClick={onRetry}
-                  className="mt-1 font-semibold text-[#5c4680] hover:underline"
+                  className="mt-1.5 cursor-pointer text-xs font-bold text-[#2F80ED] hover:underline"
                 >
                   Retry
                 </button>
               )}
             </div>
           ) : filteredOptions.length ? (
-            filteredOptions.map((opt) => (
-              <button
-                key={opt}
-                type="button"
-                role="option"
-                aria-selected={value === opt}
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => handleSelect(opt)}
-                className="block w-full px-3.5 py-2 text-left text-sm font-medium text-slate-700 hover:bg-[#7F68A9]/10 hover:text-[#5c4680]"
-              >
-                {opt}
-              </button>
-            ))
+            filteredOptions.map((opt) => {
+              const isSelected = value === opt;
+              return (
+                <button
+                  key={opt}
+                  type="button"
+                  role="option"
+                  aria-selected={isSelected}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => handleSelect(opt)}
+                  className={`flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 text-left text-xs font-semibold transition ${
+                    isSelected
+                      ? "bg-blue-50 font-bold text-[#092340]"
+                      : "text-slate-700 hover:bg-slate-100/80 hover:text-[#092340]"
+                  }`}
+                >
+                  <span className="truncate">{opt}</span>
+                  {isSelected && <Check size={14} className="text-[#2F80ED]" />}
+                </button>
+              );
+            })
           ) : (
-            <p className="px-3.5 py-3 text-sm text-slate-500">
+            <p className="py-4 text-center text-xs font-medium text-slate-400">
               {query ? `No results for "${query}"` : "No options available"}
             </p>
           )}
@@ -425,6 +491,7 @@ export default function AICalculator() {
   const makeSuggestions = makes.map((item) => item.name);
   const modelSuggestions = models.map((item) => item.name);
   const variantSuggestions = variants.map((item) => item.name);
+  const modelLaunchYear = getModelLaunchYear(make, model);
   const rtoSuggestions = CITY_RTO_MAP[city] ?? [];
 
   const clearValuation = () => {
@@ -442,6 +509,7 @@ export default function AICalculator() {
     setMake(value);
     setModel("");
     setVariant("");
+    setYear("");
     setFuel("");
     setTransmission("");
     setModels([]);
@@ -461,6 +529,7 @@ export default function AICalculator() {
   const handleModelChange = async (value) => {
     setModel(value);
     setVariant("");
+    setYear("");
     setFuel("");
     setTransmission("");
     setVariants([]);
@@ -512,7 +581,8 @@ export default function AICalculator() {
     .filter(([value, options]) => !options.includes(value.trim()))
     .map(([, , label]) => label);
   const mileage = Number(kms.replace(/,/g, "").trim());
-  const isMileageValid = Number.isFinite(mileage) && mileage >= 0;
+  const isMileageValid =
+    Number.isFinite(mileage) && mileage >= 0 && mileage <= MAX_MILEAGE_KM;
 
   // Condition isn't part of the CatBoost model's feature set (see main.py's
   // EXPECTED_COLUMNS), so we apply it as a light client-side adjustment on
@@ -551,8 +621,18 @@ export default function AICalculator() {
       );
       return;
     }
+    if (!modelLaunchYear) {
+      setApiError("Launch-year data is unavailable for this model, so it cannot be valued yet.");
+      return;
+    }
+    if (Number(year) < modelLaunchYear) {
+      setApiError(
+        `${model} was launched in ${modelLaunchYear}. Select ${modelLaunchYear} or later.`
+      );
+      return;
+    }
     if (!isMileageValid) {
-      setApiError("KMs Driven must be a valid number greater than or equal to 0.");
+      setApiError(`KMs Driven must be between 0 and ${MAX_MILEAGE_KM.toLocaleString("en-IN")} km.`);
       return;
     }
     if (!condition) {
@@ -730,7 +810,7 @@ export default function AICalculator() {
         </motion.div>
 
         {/* ---------------- Content Grid ---------------- */}
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1.05fr]">
+        <div className="mt-6 grid gap-6 lg:grid-cols-[1.08fr_1fr]">
           {/* ===================== LEFT: FORM ===================== */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -776,7 +856,7 @@ export default function AICalculator() {
                   value={make}
                   onChange={handleMakeChange}
                   options={makeSuggestions}
-                  placeholder="e.g. Toyota"
+                  placeholder="Select or Search Make"
                   loading={loadingMakes}
                   error={makesError}
                   onRetry={loadMakes}
@@ -787,7 +867,7 @@ export default function AICalculator() {
                   value={model}
                   onChange={handleModelChange}
                   options={modelSuggestions}
-                  placeholder="e.g. Fortuner"
+                  placeholder={make ? "Select or Search Model" : "Select Make First"}
                   disabled={!make}
                   loading={loadingModels}
                   error={modelsError}
@@ -798,7 +878,13 @@ export default function AICalculator() {
                   value={variant}
                   onChange={handleVariantChange}
                   options={variantSuggestions}
-                  placeholder="e.g. 2.8 4x4 AT"
+                  placeholder={
+                    model
+                      ? "Select Variant"
+                      : make
+                      ? "Select Model First"
+                      : "Select Make First"
+                  }
                   disabled={!model}
                   loading={loadingVariants}
                   error={variantsError}
@@ -812,7 +898,8 @@ export default function AICalculator() {
                   value={year}
                   onChange={updateValuationInput(setYear)}
                   options={YEAR_OPTIONS}
-                  placeholder="Select year"
+                  placeholder="Select Year"
+                  minYear={modelLaunchYear}
                   required
                 />
                 <Select
@@ -820,7 +907,7 @@ export default function AICalculator() {
                   value={fuel}
                   onChange={updateValuationInput(setFuel)}
                   options={FUEL_OPTIONS}
-                  placeholder="Select fuel"
+                  placeholder="Select Fuel Type"
                   required
                 />
                 <Select
@@ -828,7 +915,7 @@ export default function AICalculator() {
                   value={transmission}
                   onChange={updateValuationInput(setTransmission)}
                   options={TRANSMISSION_OPTIONS}
-                  placeholder="Select"
+                  placeholder="Select Transmission"
                   required
                 />
               </div>
@@ -837,16 +924,24 @@ export default function AICalculator() {
                 <TextInput
                   label="KMs Driven"
                   value={kms}
-                  onChange={updateValuationInput(setKms)}
+                  onChange={(value) =>
+                    updateValuationInput(setKms)(
+                      value === "" ? "" : String(Math.min(Number(value), MAX_MILEAGE_KM))
+                    )
+                  }
+                  type="number"
+                  min="0"
+                  max={MAX_MILEAGE_KM}
+                  step="1"
                   suffix="km"
                   required
                 />
-                <Combobox
+                <Select
                   label="City"
                   value={city}
                   onChange={handleCityChange}
                   options={CITY_SUGGESTIONS}
-                  placeholder="e.g. Delhi"
+                  placeholder="Select City"
                   required
                 />
                 <Combobox
