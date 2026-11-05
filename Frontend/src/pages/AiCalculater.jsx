@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -12,12 +12,12 @@ import {
   Info,
   CheckCircle2,
   Lock,
-  Sparkles,
   Car,
   FileText,
   Eye,
   Calculator,
 } from "lucide-react";
+import { getMakes, getModels, getVariants } from "../services/vehicleApi";
 
 
 // ---------------------------------------------------------------------------
@@ -31,77 +31,31 @@ const STEPS = [
 ];
 
 const CONDITIONS = [
-  { id: "excellent", label: "Excellent", icon: ShieldCheck },
-  { id: "good", label: "Good", icon: CheckCircle2 },
-  { id: "average", label: "Average", icon: TrendingUp },
-  { id: "poor", label: "Poor", icon: Info },
+  {
+    id: "excellent",
+    label: "Excellent",
+    description: "No visible dents; paint and interior are well kept",
+  },
+  {
+    id: "good",
+    label: "Good",
+    description: "Minor scratches or dents; no major repairs needed",
+  },
+  {
+    id: "average",
+    label: "Average",
+    description: "Noticeable wear, scratches, or dents; some work needed",
+  },
+  {
+    id: "poor",
+    label: "Poor",
+    description: "Major damage or mechanical issues; repairs required",
+  },
 ];
 
-// Make/model/variant inputs accept only catalogue values. Fuel Type and
-// Transmission are limited to what the selected model actually ships with —
-// e.g. Thar never shows CNG, Bolero never shows Automatic.
-const CAR_CATALOG = {
-  Toyota: {
-    Fortuner: { fuels: ["Diesel", "Petrol"], transmissions: ["Automatic", "Manual"], variants: ["2.8 4x4 AT", "2.8 4x2 MT", "2.7 Petrol AT", "Legender 4x2 AT"] },
-    "Innova Crysta": { fuels: ["Diesel", "Petrol"], transmissions: ["Automatic", "Manual"], variants: ["2.4 GX MT", "2.4 ZX AT", "2.7 VX MT"] },
-    Camry: { fuels: ["Petrol", "Hybrid"], transmissions: ["Automatic"], variants: ["Hybrid AT"] },
-    Glanza: { fuels: ["Petrol", "CNG"], transmissions: ["Manual", "Automatic"], variants: ["G MT", "V CVT", "S CNG"] },
-    "Urban Cruiser Hyryder": { fuels: ["Petrol", "Hybrid", "CNG"], transmissions: ["Manual", "Automatic"], variants: ["E MT", "S Hybrid AT", "G CNG"] },
-  },
-  Honda: {
-    City: { fuels: ["Petrol"], transmissions: ["Manual", "Automatic"], variants: ["ZX CVT", "V MT", "VX CVT"] },
-    Amaze: { fuels: ["Petrol", "Diesel"], transmissions: ["Manual", "Automatic"], variants: ["VX MT", "V CVT"] },
-    Elevate: { fuels: ["Petrol"], transmissions: ["Manual", "Automatic"], variants: ["V MT", "ZX CVT"] },
-    "WR-V": { fuels: ["Petrol"], transmissions: ["Manual"], variants: ["VX MT", "SV MT"] },
-  },
-  Hyundai: {
-    Creta: { fuels: ["Petrol", "Diesel"], transmissions: ["Manual", "Automatic"], variants: ["SX PLUS", "SX(O) Diesel AT", "EX Petrol MT", "S Diesel MT"] },
-    Verna: { fuels: ["Petrol"], transmissions: ["Manual", "Automatic"], variants: ["SX(O) Turbo DCT", "S MT"] },
-    i20: { fuels: ["Petrol"], transmissions: ["Manual", "Automatic"], variants: ["Sportz MT", "Asta IVT"] },
-    Venue: { fuels: ["Petrol", "Diesel"], transmissions: ["Manual", "Automatic"], variants: ["SX Turbo DCT", "S Diesel MT"] },
-    Exter: { fuels: ["Petrol", "CNG"], transmissions: ["Manual", "Automatic"], variants: ["SX MT", "SX(O) AMT", "S CNG"] },
-  },
-  "Maruti Suzuki": {
-    Swift: { fuels: ["Petrol", "CNG"], transmissions: ["Manual", "Automatic"], variants: ["ZXi AMT", "VXi MT", "LXi MT"] },
-    Baleno: { fuels: ["Petrol", "CNG"], transmissions: ["Manual", "Automatic"], variants: ["Zeta AMT", "Alpha CVT"] },
-    Brezza: { fuels: ["Petrol", "CNG"], transmissions: ["Manual", "Automatic"], variants: ["ZXi+ AT", "VXi MT"] },
-    Ertiga: { fuels: ["Petrol", "CNG"], transmissions: ["Manual", "Automatic"], variants: ["ZXi MT", "VXi CNG"] },
-    "Wagon R": { fuels: ["Petrol", "CNG"], transmissions: ["Manual", "Automatic"], variants: ["LXi MT", "VXi AMT"] },
-  },
-  Mahindra: {
-    XUV700: { fuels: ["Diesel", "Petrol"], transmissions: ["Manual", "Automatic"], variants: ["AX7 Diesel AT", "AX5 Petrol MT", "AX7L 4x4 AT"] },
-    "Scorpio-N": { fuels: ["Diesel", "Petrol"], transmissions: ["Manual", "Automatic"], variants: ["Z8L Diesel AT", "Z4 Petrol MT"] },
-    Thar: { fuels: ["Diesel", "Petrol"], transmissions: ["Manual", "Automatic"], variants: ["LX Diesel AT 4x4", "AX Petrol MT RWD"] },
-    XUV300: { fuels: ["Diesel", "Petrol"], transmissions: ["Manual", "Automatic"], variants: ["W8 Diesel MT", "W6 Petrol AMT"] },
-    Bolero: { fuels: ["Diesel"], transmissions: ["Manual"], variants: ["B6 MT", "B4 MT"] },
-  },
-  Tata: {
-    Nexon: { fuels: ["Petrol", "Diesel", "CNG", "Electric"], transmissions: ["Manual", "Automatic"], variants: ["Creative MT", "Fearless+ AMT", "EV Empowered LR"] },
-    Punch: { fuels: ["Petrol", "CNG"], transmissions: ["Manual", "Automatic"], variants: ["Adventure MT", "Creative AMT"] },
-    Harrier: { fuels: ["Diesel"], transmissions: ["Manual", "Automatic"], variants: ["Adventure MT", "Fearless+ AT"] },
-    Altroz: { fuels: ["Petrol", "Diesel", "CNG"], transmissions: ["Manual"], variants: ["XZ+ MT", "XM CNG"] },
-  },
-  Kia: {
-    Seltos: { fuels: ["Petrol", "Diesel"], transmissions: ["Manual", "Automatic"], variants: ["HTX Diesel AT", "HTK Petrol MT"] },
-    Sonet: { fuels: ["Petrol", "Diesel"], transmissions: ["Manual", "Automatic"], variants: ["HTX Turbo DCT", "HTE Diesel MT"] },
-    Carens: { fuels: ["Petrol", "Diesel"], transmissions: ["Manual", "Automatic"], variants: ["Luxury Plus AT", "Premium MT"] },
-  },
-  Ford: {
-    EcoSport: { fuels: ["Petrol", "Diesel"], transmissions: ["Manual", "Automatic"], variants: ["Titanium MT", "Ambiente Diesel MT"] },
-    Endeavour: { fuels: ["Diesel"], transmissions: ["Automatic"], variants: ["Titanium+ 4x4 AT"] },
-  },
-  Volkswagen: {
-    Taigun: { fuels: ["Petrol"], transmissions: ["Manual", "Automatic"], variants: ["GT Plus DSG", "Comfortline MT"] },
-    Virtus: { fuels: ["Petrol"], transmissions: ["Manual", "Automatic"], variants: ["GT Plus DSG", "Dynamic Line MT"] },
-  },
-  Skoda: {
-    Slavia: { fuels: ["Petrol"], transmissions: ["Manual", "Automatic"], variants: ["Style AT", "Ambition MT"] },
-    Kushaq: { fuels: ["Petrol"], transmissions: ["Manual", "Automatic"], variants: ["Style DSG", "Ambition MT"] },
-  },
-};
-
-const MAKE_SUGGESTIONS = Object.keys(CAR_CATALOG);
 const YEAR_OPTIONS = ["2024", "2023", "2022", "2021", "2020", "2019"];
+const FUEL_OPTIONS = ["Petrol", "Diesel", "CNG", "Electric", "Hybrid"];
+const TRANSMISSION_OPTIONS = ["Manual", "Automatic", "AMT", "CVT", "DCT"];
 
 // City -> RTO codes registered in that city.
 const CITY_RTO_MAP = {
@@ -151,7 +105,7 @@ function FieldLabel({ children, required }) {
 }
 
 const glassInputClass =
-  "h-11 w-full rounded-xl border border-white/85 bg-white/75 px-3.5 text-sm font-medium text-[#1D1435] outline-none transition-all placeholder:text-slate-400 focus:bg-white/95 focus:border-[#7F68A9] focus:ring-4 focus:ring-[#7F68A9]/20 shadow-sm backdrop-blur-md";
+  "h-11 w-full rounded-xl border border-slate-200/90 bg-white/85 px-3.5 text-sm font-medium text-[#092340] outline-none transition-all placeholder:text-slate-400 hover:border-slate-300 focus:bg-white focus:border-[#2F80ED] focus:ring-4 focus:ring-[#2F80ED]/20 shadow-xs backdrop-blur-md";
 
 function Select({ label, value, onChange, options, placeholder, required }) {
   return (
@@ -219,16 +173,38 @@ function TextInput({ label, value, onChange, suffix, icon: Icon, placeholder, li
 }
 
 // Dropdown fields accept catalogue values only.
-function Combobox({ label, value, onChange, options, placeholder, required }) {
+function Combobox({
+  label,
+  value,
+  onChange,
+  options,
+  placeholder,
+  required,
+  disabled = false,
+  loading = false,
+  error = "",
+  onRetry,
+}) {
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const wrapRef = useRef(null);
+  const filteredOptions = useMemo(() => {
+    const search = query.trim().toLowerCase();
+    return search
+      ? options.filter((option) => option.toLowerCase().includes(search))
+      : options;
+  }, [options, query]);
 
   const openList = () => {
-    setOpen(true);
+    if (!disabled) {
+      setQuery("");
+      setOpen(true);
+    }
   };
 
   const handleSelect = (opt) => {
     onChange(opt);
+    setQuery("");
     setOpen(false);
   };
 
@@ -237,24 +213,36 @@ function Combobox({ label, value, onChange, options, placeholder, required }) {
       ref={wrapRef}
       className="relative"
       onBlur={(e) => {
-        if (!wrapRef.current?.contains(e.relatedTarget)) setOpen(false);
+        if (!wrapRef.current?.contains(e.relatedTarget)) {
+          setOpen(false);
+          setQuery("");
+        }
       }}
     >
       <FieldLabel required={required}>{label}</FieldLabel>
       <div className="relative">
         <input
-          value={value}
+          value={open ? query : value}
+          type="text"
+          spellCheck={false}
+          autoComplete="off"
           onFocus={openList}
           onClick={openList}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setOpen(true);
+          }}
           onKeyDown={(e) => {
             if (e.key === "Escape") setOpen(false);
             if (e.key === "ArrowDown") setOpen(true);
           }}
-          readOnly
+          disabled={disabled}
           aria-haspopup="listbox"
           aria-expanded={open}
           placeholder={placeholder}
-          className={`${glassInputClass} appearance-none pr-9`}
+          className={`${glassInputClass} cursor-text appearance-none pr-9 ${
+            disabled ? "cursor-not-allowed opacity-60" : ""
+          }`}
         />
         <button
           type="button"
@@ -267,24 +255,46 @@ function Combobox({ label, value, onChange, options, placeholder, required }) {
         </button>
       </div>
 
-      {open && options.length > 0 && (
+      {open && (
         <div
           role="listbox"
-          className="absolute z-20 mt-1.5 max-h-52 w-full overflow-y-auto rounded-xl border border-white/85 bg-white/95 py-1.5 shadow-lg backdrop-blur-md"
+          className="absolute z-20 mt-1.5 max-h-56 w-full overflow-y-auto rounded-2xl border border-slate-200 bg-white/98 p-1.5 shadow-2xl backdrop-blur-xl"
         >
-          {options.map((opt) => (
-            <button
-              key={opt}
-              type="button"
-              role="option"
-              aria-selected={value === opt}
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => handleSelect(opt)}
-              className="block w-full px-3.5 py-2 text-left text-sm font-medium text-slate-700 hover:bg-[#7F68A9]/10 hover:text-[#5c4680]"
-            >
-              {opt}
-            </button>
-          ))}
+          {loading ? (
+            <p className="px-3.5 py-3 text-sm text-slate-500">Loading options...</p>
+          ) : error ? (
+            <div className="px-3.5 py-3 text-sm text-amber-700">
+              <p>{error}</p>
+              {onRetry && (
+                <button
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={onRetry}
+                  className="mt-1 font-semibold text-[#5c4680] hover:underline"
+                >
+                  Retry
+                </button>
+              )}
+            </div>
+          ) : filteredOptions.length ? (
+            filteredOptions.map((opt) => (
+              <button
+                key={opt}
+                type="button"
+                role="option"
+                aria-selected={value === opt}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => handleSelect(opt)}
+                className="block w-full px-3.5 py-2 text-left text-sm font-medium text-slate-700 hover:bg-[#7F68A9]/10 hover:text-[#5c4680]"
+              >
+                {opt}
+              </button>
+            ))
+          ) : (
+            <p className="px-3.5 py-3 text-sm text-slate-500">
+              {query ? `No results for "${query}"` : "No options available"}
+            </p>
+          )}
         </div>
       )}
     </div>
@@ -303,6 +313,15 @@ export default function AICalculator() {
   const [make, setMake] = useState("");
   const [model, setModel] = useState("");
   const [variant, setVariant] = useState("");
+  const [makes, setMakes] = useState([]);
+  const [models, setModels] = useState([]);
+  const [variants, setVariants] = useState([]);
+  const [loadingMakes, setLoadingMakes] = useState(true);
+  const [loadingModels, setLoadingModels] = useState(false);
+  const [loadingVariants, setLoadingVariants] = useState(false);
+  const [makesError, setMakesError] = useState("");
+  const [modelsError, setModelsError] = useState("");
+  const [variantsError, setVariantsError] = useState("");
   const [year, setYear] = useState("");
   const [fuel, setFuel] = useState("");
   const [transmission, setTransmission] = useState("");
@@ -320,6 +339,22 @@ export default function AICalculator() {
   const [processedUrl, setProcessedUrl] = useState("");
   const [bgRemoving, setBgRemoving] = useState(false);
   const [imageRequest, setImageRequest] = useState(null);
+
+  const loadMakes = useCallback(async () => {
+    setLoadingMakes(true);
+    setMakesError("");
+    const result = await getMakes();
+    if (result.success) {
+      setMakes(result.data);
+    } else {
+      setMakesError(result.error || "Unable to load vehicle makes.");
+    }
+    setLoadingMakes(false);
+  }, []);
+
+  useEffect(() => {
+    loadMakes();
+  }, [loadMakes]);
 
   // Fetch and process a car photo only after the user requests a valuation.
   useEffect(() => {
@@ -387,12 +422,9 @@ export default function AICalculator() {
     imageRequest?.make === make.trim() &&
     imageRequest?.model === model.trim();
 
-  // Dependent options are available only for known catalogue entries.
-  const modelSuggestions = Object.keys(CAR_CATALOG[make] ?? {});
-  const carInfo = CAR_CATALOG[make]?.[model];
-  const variantSuggestions = carInfo?.variants ?? [];
-  const fuelOptions = carInfo?.fuels ?? [];
-  const transmissionOptions = carInfo?.transmissions ?? [];
+  const makeSuggestions = makes.map((item) => item.name);
+  const modelSuggestions = models.map((item) => item.name);
+  const variantSuggestions = variants.map((item) => item.name);
   const rtoSuggestions = CITY_RTO_MAP[city] ?? [];
 
   const clearValuation = () => {
@@ -406,19 +438,48 @@ export default function AICalculator() {
     clearValuation();
   };
 
-  const handleMakeChange = (value) => {
+  const handleMakeChange = async (value) => {
     setMake(value);
     setModel("");
     setVariant("");
     setFuel("");
     setTransmission("");
+    setModels([]);
+    setVariants([]);
+    setModelsError("");
+    setVariantsError("");
+    setLoadingModels(true);
     clearValuation();
+    const result = await getModels(value);
+    if (result.success) {
+      setModels(result.data);
+    } else {
+      setModelsError(result.error || "Unable to load models.");
+    }
+    setLoadingModels(false);
   };
-  const handleModelChange = (value) => {
+  const handleModelChange = async (value) => {
     setModel(value);
     setVariant("");
     setFuel("");
     setTransmission("");
+    setVariants([]);
+    setVariantsError("");
+    setLoadingVariants(true);
+    clearValuation();
+    const result = await getVariants(make, value);
+    if (result.success) {
+      setVariants(result.data);
+    } else {
+      setVariantsError(result.error || "Unable to load variants.");
+    }
+    setLoadingVariants(false);
+  };
+  const handleVariantChange = (value) => {
+    const selectedVariant = variants.find((item) => item.name === value);
+    setVariant(value);
+    setFuel(selectedVariant?.fuelType || "");
+    setTransmission(selectedVariant?.transmission || "");
     clearValuation();
   };
   const handleCityChange = (value) => {
@@ -439,11 +500,11 @@ export default function AICalculator() {
     rto.trim(),
   ].every(Boolean);
   const invalidSuggestionFields = [
-    [make, MAKE_SUGGESTIONS, "Make"],
+    [make, makeSuggestions, "Make"],
     [model, modelSuggestions, "Model"],
     [variant, variantSuggestions, "Variant"],
-    [fuel, fuelOptions, "Fuel Type"],
-    [transmission, transmissionOptions, "Transmission"],
+    [fuel, FUEL_OPTIONS, "Fuel Type"],
+    [transmission, TRANSMISSION_OPTIONS, "Transmission"],
     [year, YEAR_OPTIONS, "Year of Purchase"],
     [city, CITY_SUGGESTIONS, "City"],
     [rto, rtoSuggestions, "RTO"],
@@ -714,8 +775,11 @@ export default function AICalculator() {
                   label="Make"
                   value={make}
                   onChange={handleMakeChange}
-                  options={MAKE_SUGGESTIONS}
+                  options={makeSuggestions}
                   placeholder="e.g. Toyota"
+                  loading={loadingMakes}
+                  error={makesError}
+                  onRetry={loadMakes}
                   required
                 />
                 <Combobox
@@ -724,14 +788,20 @@ export default function AICalculator() {
                   onChange={handleModelChange}
                   options={modelSuggestions}
                   placeholder="e.g. Fortuner"
+                  disabled={!make}
+                  loading={loadingModels}
+                  error={modelsError}
                   required
                 />
                 <Combobox
                   label="Variant"
                   value={variant}
-                  onChange={updateValuationInput(setVariant)}
+                  onChange={handleVariantChange}
                   options={variantSuggestions}
                   placeholder="e.g. 2.8 4x4 AT"
+                  disabled={!model}
+                  loading={loadingVariants}
+                  error={variantsError}
                   required
                 />
               </div>
@@ -749,7 +819,7 @@ export default function AICalculator() {
                   label="Fuel Type"
                   value={fuel}
                   onChange={updateValuationInput(setFuel)}
-                  options={fuelOptions}
+                  options={FUEL_OPTIONS}
                   placeholder="Select fuel"
                   required
                 />
@@ -757,7 +827,7 @@ export default function AICalculator() {
                   label="Transmission"
                   value={transmission}
                   onChange={updateValuationInput(setTransmission)}
-                  options={transmissionOptions}
+                  options={TRANSMISSION_OPTIONS}
                   placeholder="Select"
                   required
                 />
@@ -794,25 +864,50 @@ export default function AICalculator() {
                 <p className="-mt-1 mb-2.5 text-[11.5px] text-slate-500">
                   Select the condition that best describes your car
                 </p>
-                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {CONDITIONS.map((c) => {
-                    const Icon = c.icon;
                     const active = condition === c.id;
                     return (
                       <button
+                        type="button"
                         key={c.id}
+                        aria-pressed={active}
                         onClick={() => {
                           setCondition(c.id);
                           clearValuation();
                         }}
-                        className={`flex flex-col items-center gap-1.5 rounded-xl border px-2 py-3 text-[11px] font-semibold backdrop-blur-md transition-all ${
+                        className={`flex min-h-[84px] items-center gap-3 rounded-2xl border p-3.5 text-left backdrop-blur-md transition-all duration-200 ${
                           active
-                            ? "border-[#7F68A9] bg-white/85 text-[#5c4680] shadow-[0_2px_8px_rgba(127,104,169,0.25)]"
-                            : "border-white/70 bg-white/50 text-slate-600 hover:border-white/90 hover:bg-white/70"
+                            ? "border-emerald-500 bg-emerald-500/15 text-emerald-900 shadow-md shadow-emerald-500/10 ring-2 ring-emerald-500/40"
+                            : "border-slate-200/90 bg-white/80 text-slate-600 shadow-xs hover:border-slate-300 hover:bg-white"
                         }`}
                       >
-                        <Icon size={16} />
-                        {c.label}
+                        <span
+                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border text-sm font-bold shadow-sm ${
+                            active
+                              ? "border-emerald-500 bg-emerald-500 text-white shadow-emerald-500/20"
+                              : "border-slate-200 bg-slate-100 text-slate-700"
+                          }`}
+                          aria-hidden="true"
+                        >
+                          {active ? "✓" : <Car size={17} />}
+                        </span>
+                        <span>
+                          <span
+                            className={`block text-xs font-bold ${
+                              active ? "text-emerald-900" : "text-[#092340]"
+                            }`}
+                          >
+                            {c.label}
+                          </span>
+                          <span
+                            className={`mt-1 block text-[11px] leading-4 ${
+                              active ? "font-medium text-emerald-800" : "text-slate-500"
+                            }`}
+                          >
+                            {c.description}
+                          </span>
+                        </span>
                       </button>
                     );
                   })}
@@ -1161,8 +1256,7 @@ export default function AICalculator() {
               </motion.div>
             ) : !loading ? (
               <div className="mt-8 flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 py-14 text-center">
-                <Sparkles size={22} className="text-slate-300" />
-                <p className="mt-3 text-sm font-semibold text-slate-500">
+                <p className="text-sm font-semibold text-slate-500">
                   Fill in your car's details
                 </p>
                 <p className="mt-1 max-w-[220px] text-xs text-slate-400">
