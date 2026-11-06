@@ -139,6 +139,26 @@ function getModelLaunchYear(makeName, modelName) {
   ];
 }
 
+function getVariantFuel(variantName) {
+  const name = variantName.toLowerCase();
+  if (/\bdiesel\b/.test(name)) return "Diesel";
+  if (/\bpetrol\b|\bgasoline\b/.test(name)) return "Petrol";
+  if (/\bcng\b/.test(name)) return "CNG";
+  if (/\bhybrid\b/.test(name)) return "Hybrid";
+  if (/\belectric\b|\bev\b/.test(name)) return "Electric";
+  return "";
+}
+
+function getVariantTransmission(variantName) {
+  const name = variantName.toLowerCase();
+  if (/\bamt\b/.test(name)) return "AMT";
+  if (/\b(dct|dca)\b/.test(name)) return "DCT";
+  if (/\b(cvt|ecvt|ivt)\b/.test(name)) return "CVT";
+  if (/\b(a\/?t|automatic)\b/.test(name)) return "Automatic";
+  if (/\b(m\/?t|manual)\b/.test(name)) return "Manual";
+  return "";
+}
+
 // ---------------------------------------------------------------------------
 // Small building blocks
 // ---------------------------------------------------------------------------
@@ -155,7 +175,15 @@ function FieldLabel({ children, required }) {
 const glassInputClass =
   "h-11 w-full rounded-xl border border-slate-200/90 bg-white/85 px-3.5 text-sm font-medium text-[#092340] outline-none transition-all placeholder:text-slate-400 hover:border-slate-300 focus:bg-white focus:border-[#2F80ED] focus:ring-4 focus:ring-[#2F80ED]/20 shadow-xs backdrop-blur-md";
 
-function Select({ label, value, onChange, options, placeholder, required, minYear }) {
+function Select({
+  label,
+  value,
+  onChange,
+  options,
+  placeholder,
+  required,
+  minYear,
+}) {
   return (
     <div>
       <FieldLabel required={required}>{label}</FieldLabel>
@@ -491,6 +519,17 @@ export default function AICalculator() {
   const makeSuggestions = makes.map((item) => item.name);
   const modelSuggestions = models.map((item) => item.name);
   const variantSuggestions = variants.map((item) => item.name);
+  const selectedVariant = variants.find((item) => item.name === variant);
+  const variantFuel =
+    getVariantFuel(selectedVariant?.name || "") || selectedVariant?.fuelType || "";
+  const variantTransmission =
+    getVariantTransmission(selectedVariant?.name || "") ||
+    selectedVariant?.transmission ||
+    "";
+  const fuelOptions = variantFuel ? [variantFuel] : FUEL_OPTIONS;
+  const transmissionOptions = variantTransmission
+    ? [variantTransmission]
+    : TRANSMISSION_OPTIONS;
   const modelLaunchYear = getModelLaunchYear(make, model);
   const rtoSuggestions = CITY_RTO_MAP[city] ?? [];
 
@@ -545,10 +584,16 @@ export default function AICalculator() {
     setLoadingVariants(false);
   };
   const handleVariantChange = (value) => {
-    const selectedVariant = variants.find((item) => item.name === value);
+    const nextVariant = variants.find((item) => item.name === value);
     setVariant(value);
-    setFuel(selectedVariant?.fuelType || "");
-    setTransmission(selectedVariant?.transmission || "");
+    setFuel(
+      getVariantFuel(nextVariant?.name || "") || nextVariant?.fuelType || ""
+    );
+    setTransmission(
+      getVariantTransmission(nextVariant?.name || "") ||
+        nextVariant?.transmission ||
+        ""
+    );
     clearValuation();
   };
   const handleCityChange = (value) => {
@@ -572,8 +617,8 @@ export default function AICalculator() {
     [make, makeSuggestions, "Make"],
     [model, modelSuggestions, "Model"],
     [variant, variantSuggestions, "Variant"],
-    [fuel, FUEL_OPTIONS, "Fuel Type"],
-    [transmission, TRANSMISSION_OPTIONS, "Transmission"],
+    [fuel, fuelOptions, "Fuel Type"],
+    [transmission, transmissionOptions, "Transmission"],
     [year, YEAR_OPTIONS, "Year of Purchase"],
     [city, CITY_SUGGESTIONS, "City"],
     [rto, rtoSuggestions, "RTO"],
@@ -906,7 +951,7 @@ export default function AICalculator() {
                   label="Fuel Type"
                   value={fuel}
                   onChange={updateValuationInput(setFuel)}
-                  options={FUEL_OPTIONS}
+                  options={fuelOptions}
                   placeholder="Select Fuel Type"
                   required
                 />
@@ -914,7 +959,7 @@ export default function AICalculator() {
                   label="Transmission"
                   value={transmission}
                   onChange={updateValuationInput(setTransmission)}
-                  options={TRANSMISSION_OPTIONS}
+                  options={transmissionOptions}
                   placeholder="Select Transmission"
                   required
                 />
