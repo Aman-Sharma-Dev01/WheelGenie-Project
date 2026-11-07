@@ -216,7 +216,7 @@ function Select({
   );
 }
 
-function TextInput({ label, value, onChange, suffix, icon: Icon, placeholder, listId, list, required, type = "text", min, max, step }) {
+function TextInput({ label, value, onChange, suffix, icon: Icon, placeholder, listId, list, required, type = "text", inputMode, min, max, step, error = "" }) {
   return (
     <div>
       <FieldLabel required={required}>{label}</FieldLabel>
@@ -224,13 +224,16 @@ function TextInput({ label, value, onChange, suffix, icon: Icon, placeholder, li
         <input
           value={value}
           type={type}
+          inputMode={inputMode}
           min={min}
           max={max}
           step={step}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           list={listId}
-          className={`${glassInputClass} ${suffix || Icon ? "pr-12" : ""}`}
+          className={`${glassInputClass} ${suffix || Icon ? "pr-12" : ""} ${
+            error ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
+          }`}
         />
         {suffix && (
           <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">
@@ -251,6 +254,9 @@ function TextInput({ label, value, onChange, suffix, icon: Icon, placeholder, li
           </datalist>
         )}
       </div>
+      {error && (
+        <p className="mt-1 text-[11px] font-semibold text-red-500">{error}</p>
+      )}
     </div>
   );
 }
@@ -627,7 +633,13 @@ export default function AICalculator() {
     .map(([, , label]) => label);
   const mileage = Number(kms.replace(/,/g, "").trim());
   const isMileageValid =
-    Number.isFinite(mileage) && mileage >= 0 && mileage <= MAX_MILEAGE_KM;
+    Number.isInteger(mileage) &&
+    mileage >= 0 &&
+    mileage <= MAX_MILEAGE_KM;
+  const mileageError =
+    kms && mileage > MAX_MILEAGE_KM
+      ? `Limit is ${MAX_MILEAGE_KM.toLocaleString("en-IN")} km.`
+      : "";
 
   // Condition isn't part of the CatBoost model's feature set (see main.py's
   // EXPECTED_COLUMNS), so we apply it as a light client-side adjustment on
@@ -969,17 +981,22 @@ export default function AICalculator() {
                 <TextInput
                   label="KMs Driven"
                   value={kms}
-                  onChange={(value) =>
-                    updateValuationInput(setKms)(
-                      value === "" ? "" : String(Math.min(Number(value), MAX_MILEAGE_KM))
-                    )
-                  }
-                  type="number"
-                  min="0"
-                  max={MAX_MILEAGE_KM}
-                  step="1"
+                  onChange={(value) => {
+                    if (value !== "" && !/^\d+$/.test(value)) {
+                      return;
+                    }
+                    updateValuationInput(setKms)(value);
+                    if (Number(value) > MAX_MILEAGE_KM) {
+                      setApiError(
+                        `KMs Driven cannot exceed ${MAX_MILEAGE_KM.toLocaleString("en-IN")} km.`
+                      );
+                    }
+                  }}
+                  type="text"
+                  inputMode="numeric"
                   suffix="km"
                   required
+                  error={mileageError}
                 />
                 <Select
                   label="City"
